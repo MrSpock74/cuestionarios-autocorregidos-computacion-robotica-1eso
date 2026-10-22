@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cuestionarios autocorregidos para Google Classroom · Computación y Robótica 1º ESO</title>
+<meta name="description" content="Aplicación de Google Apps Script con ocho cuestionarios que se corrigen solos, guardan los resultados en tu Drive y vuelcan la nota a Google Classroom. Instrucciones de instalación paso a paso.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#0891b2; --accent-d:#0e7490; --orange:#c2660a; --orange-bg:#fbe9d6;
+    --ink:#181c34; --ink-soft:#4c5170; --muted:#6b7094;
+    --bg:#f4f5fb; --panel:#ffffff; --panel-2:#eceffb;
+    --line:rgba(24,28,52,.13); --ok:#0a8f5b; --warn:#b45309;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 'Manrope',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);line-height:1.15;margin:0}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px}
+  nav.top{position:sticky;top:0;z-index:5;background:rgba(244,245,251,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav.top .wrap{display:flex;gap:6px 18px;flex-wrap:wrap;padding:10px 18px;font-size:14px;font-weight:600}
+  nav.top a{color:var(--ink-soft);text-decoration:none}
+  nav.top a:hover{color:var(--accent-d)}
+  header{padding:48px 0 28px}
+  .pill{display:inline-block;background:var(--orange-bg);color:var(--orange);font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:6px 12px;border-radius:999px}
+  h1{font-size:clamp(34px,6.5vw,56px);margin:.35em 0 .25em;font-weight:800}
+  h1 span{color:var(--accent)}
+  .lead{font-size:19px;color:var(--ink-soft);max-width:640px;margin:0}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:700;color:var(--ink-soft)}
+  .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+  .btn{display:inline-block;padding:12px 22px;border-radius:12px;text-decoration:none;font-weight:800;border:2px solid var(--accent);color:var(--accent-d);background:var(--panel)}
+  .btn.main{background:var(--accent);color:#fff}
+  section{padding:30px 0}
+  h2{font-size:30px;margin-bottom:8px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 2px 10px rgba(24,28,52,.05)}
+  .card h3{font-size:19px;margin-bottom:4px}
+  .card p{margin:0;color:var(--ink-soft);font-size:15.5px}
+  .card .n{display:inline-block;margin-top:10px;font-size:13px;font-weight:800;color:var(--accent-d);background:var(--panel-2);border-radius:999px;padding:3px 10px}
+  .quiz .ico{font-size:26px;line-height:1;margin-bottom:8px;display:block}
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+  ol.steps>li{counter-increment:s;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px 16px 66px;margin-bottom:12px}
+  ol.steps>li::before{content:counter(s);position:absolute;left:16px;top:14px;width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#be185d);color:#fff;font:800 19px 'Baloo 2',sans-serif;display:flex;align-items:center;justify-content:center}
+  ol.steps h3{font-size:19px;margin-bottom:4px}
+  ol.steps p{margin:.3em 0 0;color:var(--ink-soft);font-size:16px}
+  ol.steps ul{margin:.4em 0 0;padding-left:20px;color:var(--ink-soft);font-size:16px}
+  code{background:var(--panel-2);border-radius:6px;padding:1px 6px;font-size:.9em;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  pre{background:#181c34;color:#e8ecff;border-radius:12px;padding:12px 16px;overflow-x:auto;font-size:14px;margin:10px 0 0}
+  pre code{background:none;padding:0;color:inherit}
+  .note,.warn{border-radius:14px;padding:13px 18px;margin:14px 0 0;font-size:15.5px}
+  .note{background:var(--panel-2);border-left:5px solid var(--accent);color:var(--ink-soft)}
+  .warn{background:#fff5e8;border-left:5px solid var(--warn);color:#6b3a07}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;padding:2px 18px}
+  summary{cursor:pointer;font-weight:800;padding:13px 0;font-family:'Baloo 2',sans-serif;font-size:18px}
+  details p{margin:0 0 14px;color:var(--ink-soft);font-size:16px}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:15.5px}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--panel-2);font-family:'Baloo 2',sans-serif;font-size:16px}
+  tr:last-child td{border-bottom:0}
+  .tw{overflow-x:auto}
+  a{color:var(--accent-d)}
+  footer{border-top:1px solid var(--line);margin-top:20px;padding:26px 0 56px;color:var(--ink-soft);font-size:15px}
+  footer p{margin:0 0 .7em}
+  footer img{display:block;margin:.4em 0 .9em}
+  @media (max-width:560px){ol.steps>li{padding:62px 16px 14px}ol.steps>li::before{left:16px;top:14px}}
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="wrap">
+  <a href="#que-es">Qué es</a>
+  <a href="#cuestionarios">Los 8 cuestionarios</a>
+  <a href="#funcionamiento">Cómo funciona</a>
+  <a href="#instalar">Instalación</a>
+  <a href="#panel">Panel</a>
+  <a href="#adaptar">Adaptarlos</a>
+  <a href="#faq">Preguntas</a>
+  <a href="#creditos">Créditos</a>
+</div></nav>
+
+<div class="wrap">
+
+<header>
+  <span class="pill">Anexo para el profesorado</span>
+  <h1>Cuestionarios que <span>se corrigen solos</span></h1>
+  <p class="lead">Una aplicación de Google Apps Script con los ocho cuestionarios de Computación y Robótica de 1º de ESO: el alumnado los hace desde un enlace, recibe su nota al momento, y tú la ves en un panel y en Google Classroom.</p>
+  <div class="chips">
+    <span class="chip">8 cuestionarios</span>
+    <span class="chip">Preguntas al azar de un banco</span>
+    <span class="chip">Nota a Classroom en borrador</span>
+    <span class="chip">Sin instalar nada</span>
+  </div>
+  <div class="btns">
+    <a class="btn main" href="https://github.com/MrSpock74/cuestionarios-autocorregidos-computacion-robotica-1eso">Descargar el código (GitHub)</a>
+    <a class="btn" href="#instalar">Cómo instalarlo</a>
+  </div>
+</header>
+
+<section id="que-es">
+  <h2>Qué es y qué hace</h2>
+  <p class="sub">Todo funciona dentro de tu cuenta de Google. No hay servidores externos ni cuentas nuevas.</p>
+  <div class="grid">
+    <div class="card"><h3>Corrección automática</h3><p>La nota se calcula en el servidor y las soluciones no llegan nunca al navegador del alumnado.</p></div>
+    <div class="card"><h3>Cada intento es distinto</h3><p>Las preguntas salen al azar de un banco grande y las opciones se barajan, así que repetir el cuestionario no es copiar.</p></div>
+    <div class="card"><h3>Varios tipos de pregunta</h3><p>Verdadero o falso, opción múltiple, casillas, ordenar pasos, emparejar, rellenar huecos y respuestas cortas, con imágenes y bloques reales de Scratch y MakeCode.</p></div>
+    <div class="card"><h3>Nota a Classroom</h3><p>La app crea la tarea de cada cuestionario en <strong>borrador</strong> y vuelca la mejor nota como calificación en borrador. La publicas tú cuando quieras.</p></div>
+    <div class="card"><h3>Panel del profesorado</h3><p>Ves quién lo ha hecho, las notas, los intentos y las preguntas más falladas. Desde ahí creas y publicas las tareas.</p></div>
+    <div class="card"><h3>Resultados en tu Drive</h3><p>Todo se guarda en una hoja de cálculo que la app crea sola, con una pestaña por cuestionario y un resumen por alumno o alumna.</p></div>
+  </div>
+</section>
+
+<section id="cuestionarios">
+  <h2>Los ocho cuestionarios</h2>
+  <p class="sub">Cada uno tiene su propio enlace: la dirección de la app con <code>?q=…</code> al final.</p>
+  <div class="grid">
+    <div class="card quiz"><span class="ico">📝</span><h3>Entorno de trabajo</h3><p>Pasen e iPasen, Google Classroom y atajos de teclado. Es el que ve el alumnado con el enlace «a secas».</p><span class="n">14 preguntas · sin <code>?q</code></span></div>
+    <div class="card quiz"><span class="ico">🔒</span><h3>1.1 Ciberseguridad</h3><p>Peligros de internet, medidas de seguridad, redes sociales y decisiones al publicar.</p><span class="n">22 preguntas · <code>?q=ciberseguridad</code></span></div>
+    <div class="card quiz"><span class="ico">©</span><h3>1.2 Propiedad intelectual</h3><p>Obra y autoría, tipos de licencias y Creative Commons.</p><span class="n">14 preguntas · <code>?q=propiedad</code></span></div>
+    <div class="card quiz"><span class="ico">🌐</span><h3>2 IoT y herramientas de Google</h3><p>Internet de las cosas, búsquedas y Drive, Documentos, Presentaciones, Hojas, Formularios y Calendar.</p><span class="n">24 preguntas · <code>?q=unidad2</code></span></div>
+    <div class="card quiz"><span class="ico">🖥️</span><h3>3.1 El ordenador</h3><p>Hardware y software, unidad central, memoria, periféricos, puertos y sistema operativo.</p><span class="n">20 preguntas · <code>?q=ordenador</code></span></div>
+    <div class="card quiz"><span class="ico">🔀</span><h3>3.2 Algoritmos, lenguajes y binario</h3><p>Algoritmos, diagramas de flujo, lenguajes de programación y sistema binario.</p><span class="n">21 preguntas · <code>?q=algoritmos</code></span></div>
+    <div class="card quiz"><span class="ico">🐱</span><h3>4 Programación con Scratch</h3><p>El entorno, coordenadas y direcciones, bloques y eventos, y lectura de programas.</p><span class="n">20 preguntas · <code>?q=scratch</code></span></div>
+    <div class="card quiz"><span class="ico">🤖</span><h3>5 Control y robótica con micro:bit</h3><p>Máquinas y robots, sistemas de control, la placa micro:bit V2 y lectura de programas de MakeCode.</p><span class="n">20 preguntas · <code>?q=microbit</code></span></div>
+  </div>
+  <p class="note">Las preguntas están pensadas para el currículo de Computación y Robótica de 1º ESO en Andalucía y para los materiales de esta materia. Puedes usarlas tal cual o sustituirlas por las tuyas (mira «Adaptarlos a tu materia»).</p>
+</section>
+
+<section id="funcionamiento">
+  <h2>Cómo funciona</h2>
+  <div class="grid">
+    <div class="card"><h3>Para el alumnado</h3>
+      <p>Abre el enlace de la tarea de Classroom con su cuenta educativa, escribe nombre, apellidos y grupo, y contesta. Al terminar ve su nota y qué ha fallado. Puede repetirlo todas las veces que quiera y cuenta la <strong>mejor nota</strong>.</p></div>
+    <div class="card"><h3>Para el profesorado</h3>
+      <p>Entras con la dirección de la app a secas y vas directo al panel. Creas las tareas en Classroom, las publicas, y consultas resultados. La nota llega a Classroom como borrador y tú decides cuándo publicarla.</p></div>
+  </div>
+</section>
+
+<section id="instalar">
+  <h2>Instalación paso a paso</h2>
+  <p class="sub">Se hace una sola vez y no hace falta saber programar: es copiar, pegar y rellenar dos datos. Calcula unos 30 minutos la primera vez.</p>
+
+  <div class="warn"><strong>Antes de empezar:</strong> necesitas una cuenta de Google Workspace for Education con <strong>Classroom</strong>, ser profesor o profesora de la clase en la que vas a usarlo, y que tu centro no tenga bloqueada la <strong>API de Classroom</strong> ni los scripts de Apps Script. Algunos centros lo restringen: si algo falla en el paso 6, pregunta a quien administre vuestro dominio.</div>
+
+  <ol class="steps" style="margin-top:18px">
+    <li><h3>Descarga los archivos</h3>
+      <p>Entra en el <a href="https://github.com/MrSpock74/cuestionarios-autocorregidos-computacion-robotica-1eso">repositorio de GitHub</a>, pulsa el botón verde <strong>Code</strong> y elige <strong>Download ZIP</strong>. Descomprime la carpeta y abre <code>src</code>: ahí están los 10 archivos de la aplicación.</p></li>
+    <li><h3>Crea un proyecto de Apps Script</h3>
+      <p>Entra en <a href="https://script.google.com">script.google.com</a> con tu cuenta del centro y pulsa <strong>Nuevo proyecto</strong>. Ponle un nombre, por ejemplo «Cuestionarios Computación y Robótica».</p></li>
+    <li><h3>Pega los archivos con su nombre exacto</h3>
+      <p>Abre cada archivo de la carpeta con un editor de texto, copia todo su contenido y pégalo en el archivo del proyecto con el mismo nombre. Para crearlos, pulsa el <strong>+</strong> junto a «Archivos».</p>
+      <div class="tw"><table style="margin-top:10px">
+        <tr><th>Archivo</th><th>Tipo en Apps Script</th><th>Qué contiene</th></tr>
+        <tr><td><code>Code.gs</code></td><td>ya existe (sustitúyelo)</td><td>Motor, configuración y panel</td></tr>
+        <tr><td><code>Unidad1.gs</code> … <code>Unidad5.gs</code></td><td>+ → Script</td><td>Bancos de preguntas de cada unidad</td></tr>
+        <tr><td><code>Bloques5.gs</code></td><td>+ → Script</td><td>Imágenes del cuestionario 5</td></tr>
+        <tr><td><code>Index</code></td><td>+ → HTML</td><td>Pantalla del alumnado</td></tr>
+        <tr><td><code>Panel</code></td><td>+ → HTML</td><td>Panel del profesorado</td></tr>
+      </table></div>
+      <div class="warn">Los dos archivos HTML se tienen que llamar exactamente <code>Index</code> y <code>Panel</code>, con la primera letra en mayúscula y sin escribir «.html». Si no, el código no los encuentra.</div></li>
+    <li><h3>Sustituye el manifiesto</h3>
+      <p>Pulsa el engranaje <strong>Configuración del proyecto</strong> y marca <strong>Mostrar el archivo de manifiesto «appsscript.json» en el editor</strong>. Vuelve al editor, abre <code>appsscript.json</code> y sustituye su contenido por el del archivo del mismo nombre. Este paso activa el servicio de Classroom, la zona horaria y el tipo de despliegue.</p></li>
+    <li><h3>Busca el id de tu clase de Classroom</h3>
+      <p>Abre tu clase en Classroom. En la dirección, lo que viene justo después de <code>/c/</code> parece un código raro (está en base64). Cópialo, abre <code>Code.gs</code>, busca la función <code>decodificarCourseId</code> y pega el texto donde dice <code>PEGA_AQUI_EL_TEXTO_DESPUES_DE_/c/</code>. Selecciona esa función en el desplegable superior, pulsa <strong>Ejecutar</strong> y mira el resultado en <strong>Registro de ejecución</strong>: es un número largo, el <em>id numérico</em>.</p></li>
+    <li><h3>Rellena <code>COURSE_ID</code> y autoriza</h3>
+      <p>En la sección «CONFIGURACIÓN» de <code>Code.gs</code> pega el número entre las comillas:</p>
+<pre><code>var COURSE_ID = '123456789012';</code></pre>
+      <p>Guarda y ejecuta la función <code>autorizarPanel</code>. Google te pedirá permisos (Classroom, Drive, hojas de cálculo): acéptalos. Si aparece «Google no ha verificado esta aplicación», pulsa <strong>Configuración avanzada → Ir a (nombre del proyecto)</strong>: es tu propio script. El registro debe decir cuántos alumnos y alumnas ve en la clase.</p></li>
+    <li><h3>Implementa la aplicación web</h3>
+      <p>Pulsa <strong>Implementar → Nueva implementación → Aplicación web</strong> y configura:</p>
+      <ul>
+        <li><strong>Ejecutar como:</strong> yo (tu cuenta).</li>
+        <li><strong>Quién tiene acceso:</strong> cualquier usuario de tu dominio educativo.</li>
+      </ul>
+      <p>Pulsa <strong>Implementar</strong> y copia la dirección que termina en <code>/exec</code>. Fíjate en que sea esa y no la que acaba en <code>/dev</code>: la <code>/dev</code> solo la abren quienes editan el proyecto.</p></li>
+    <li><h3>Pega esa dirección en <code>URL_APP</code></h3>
+      <p>Vuelve a <code>Code.gs</code> y pega la dirección entre las comillas de <code>URL_APP</code>. Guarda.</p>
+<pre><code>var URL_APP = 'https://script.google.com/…/exec';</code></pre>
+      <p>Después hay que publicar el cambio: <strong>Implementar → Gestionar implementaciones</strong>, el lápiz, <strong>Versión → Nueva versión</strong> e <strong>Implementar</strong>. <em>Cada vez que cambies cualquier archivo tienes que repetir esto</em>; si no, la dirección sigue sirviendo la versión anterior.</p></li>
+    <li><h3>Abre el panel y crea las tareas</h3>
+      <p>Abre en el navegador la dirección <code>/exec</code> a secas: como eres la persona que ha implementado la app, te lleva directa al panel. En la pestaña <strong>Tareas de Classroom</strong> crea la tarea de cada cuestionario; se crean <strong>en borrador</strong> con el enlace ya puesto en la descripción.</p></li>
+    <li><h3>Pruébalo con una cuenta de alumno o alumna</h3>
+      <p>Para probar un cuestionario concreto tú mismo, añade <code>?q=…</code> al final del enlace (por ejemplo <code>?q=scratch</code>) o <code>?q=entorno</code> para el primero. Haz un intento, comprueba que aparece en el panel y revisa la hoja de cálculo que la app habrá creado en tu Drive.</p></li>
+    <li><h3>Publica la tarea en Classroom</h3>
+      <p>Cuando quieras que el alumnado haga un cuestionario, <strong>publica su tarea</strong> en Classroom (también puedes hacerlo con el botón del panel). Hazlo <strong>antes</strong> de que nadie lo haga: la API de Classroom no deja consultar las entregas de una tarea en borrador, y sin eso la nota no se vuelca.</p></li>
+  </ol>
+</section>
+
+<section id="panel">
+  <h2>El panel del profesorado</h2>
+  <p class="sub">Solo lo abre quien implementó la aplicación (y los correos que añadas a <code>PROFESORES_EXTRA</code> en <code>Code.gs</code>).</p>
+  <div class="grid">
+    <div class="card"><h3>Resultados</h3><p>Una pestaña de resumen y una por cuestionario, con su mejor nota, la última, los intentos y la fecha. Se puede ordenar, buscar y filtrar por grupo.</p></div>
+    <div class="card"><h3>Preguntas más falladas</h3><p>Te dice en qué falla más tu clase para que puedas repasarlo en voz alta.</p></div>
+    <div class="card"><h3>Tareas de Classroom</h3><p>Crea, publica y consulta el estado de la tarea de cada cuestionario, con su enlace listo para copiar.</p></div>
+    <div class="card"><h3>Quién falta</h3><p>El botón «Quién falta» consulta la lista de tu clase en Classroom y te muestra quién aún no ha hecho cada cuestionario.</p></div>
+  </div>
+</section>
+
+<section id="adaptar">
+  <h2>Adaptarlos a tu materia</h2>
+  <p>Los bancos de preguntas están en los archivos <code>Unidad1.gs</code> a <code>Unidad5.gs</code> (y las del primer cuestionario, en <code>Code.gs</code>). Cada pregunta es una línea o un bloque pequeño con su enunciado, sus opciones y la respuesta correcta; basta con copiar una existente y cambiar el texto. Los tipos de pregunta y el formato de cada uno están explicados en los comentarios al principio de <code>Code.gs</code> y de <code>Unidad1.gs</code>.</p>
+  <p>Para añadir un cuestionario nuevo, copia el de una unidad, dale un <code>id</code> propio, añádelo en <code>getQuizzes_</code> y en <code>QUIZ_ORDER</code>, y crea su tarea desde el panel.</p>
+  <p class="note">Si cambias el contenido, revisa los créditos: las imágenes de Scratch y de MakeCode tienen sus propias condiciones (ver más abajo).</p>
+</section>
+
+<section id="faq">
+  <h2>Preguntas frecuentes</h2>
+  <details><summary>El alumnado ve una pantalla de Drive pidiendo permiso</summary>
+    <p>Está abriendo la dirección <code>/dev</code> en vez de la <code>/exec</code>. Copia el enlace desde <strong>Implementar → Gestionar implementaciones</strong> y úsalo en <code>URL_APP</code> y en las tareas.</p></details>
+  <details><summary>He cambiado algo y no se nota</summary>
+    <p>Hay que crear una <strong>nueva versión</strong> de la implementación: <strong>Implementar → Gestionar implementaciones → lápiz → Nueva versión → Implementar</strong>.</p></details>
+  <details><summary>Dice que falta configurar COURSE_ID o URL_APP</summary>
+    <p>Son los dos datos que tienes que rellenar tú en <code>Code.gs</code> (pasos 6 y 8). La aplicación avisa con ese mensaje en vez de fallar sin explicación.</p></details>
+  <details><summary>La nota no llega a Classroom</summary>
+    <p>Comprueba que la tarea la creó <strong>la propia aplicación</strong> (una tarea creada a mano da el error <code>ProjectPermissionDenied</code>) y que está <strong>publicada</strong>. Además, la nota llega como borrador: tienes que devolverla desde Classroom.</p></details>
+  <details><summary>¿Puedo usarlo con varias clases?</summary>
+    <p>La aplicación trabaja con la clase de <code>COURSE_ID</code>. Para otra clase, lo más limpio es hacer una copia del proyecto con su propio id y su propia dirección. Así los resultados no se mezclan.</p></details>
+  <details><summary>No me deja ejecutar o implementar</summary>
+    <p>Puede que tu dominio tenga restringida la API de Classroom o la creación de aplicaciones web. Esa configuración la gestiona quien administre las cuentas del centro.</p></details>
+  <details><summary>¿Qué datos del alumnado se guardan y dónde?</summary>
+    <p>Nombre, apellidos, grupo, correo, respuestas y nota de cada intento, en una hoja de cálculo que se crea en <strong>tu</strong> Drive. No hay ningún otro servidor. Trátala como datos personales: no la compartas ni la subas a ningún repositorio.</p></details>
+</section>
+
+<section id="creditos">
+  <h2>Datos personales y licencia</h2>
+  <p>El código <strong>no contiene datos de alumnado ni de ninguna clase</strong>. Los valores de tu clase (<code>COURSE_ID</code> y <code>URL_APP</code>) se dejan vacíos para que pongas los tuyos.</p>
+</section>
+
+<footer>
+  <p><strong>Manuel Romero Fraidía</strong> · Departamento de Tecnología · Computación y Robótica 1º ESO · IES Murillo, Sevilla.</p>
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es"><img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-sa.svg" alt="Licencia Creative Commons Atribución-NoComercial-CompartirIgual 4.0" width="88" height="31"></a>
+  <p>El código y las preguntas se publican con licencia <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es">Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0)</a>.</p>
+  <p>Las imágenes de bloques de Scratch del cuestionario 4 están generadas con <em>scratch-blocks</em> (licencia Apache-2.0, Scratch Foundation / MIT). Las capturas de MakeCode y de la placa micro:bit del cuestionario 5 proceden del curso «MICRO:BIT en el aula» (Juan Antonio Pérez Rodríguez y Manuel Romero Fraidía, CC BY-NC-SA 4.0). Scratch, MakeCode y micro:bit son marcas de sus respectivos titulares; este proyecto no está afiliado a ellos.</p>
+  <p>Repositorio: <a href="https://github.com/MrSpock74/cuestionarios-autocorregidos-computacion-robotica-1eso">github.com/MrSpock74/cuestionarios-autocorregidos-computacion-robotica-1eso</a></p>
+</footer>
+
+</div>
+</body>
+</html>
