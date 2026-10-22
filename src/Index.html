@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cuestionario</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#0891b2; --accent-2:#c2660a; --accent-3:#be185d; --accent-4:#4f46e5; --accent-5:#15803d;
+    --ink:#181c34; --ink-soft:#4c5170; --muted:#6b7094;
+    --bg:#f4f5fb; --bg-panel:#ffffff; --bg-panel-2:#eceffb;
+    --line:rgba(24,28,52,.13);
+    --ok:#0a8f5b; --bad:#c22a3e; --warn:#b45309;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Manrope',system-ui,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Baloo 2',system-ui,sans-serif; margin:0 0 .4em; color:var(--ink);}
+  .wrap{max-width:780px; margin:0 auto; padding:28px 18px 80px;}
+
+  .top{display:flex; align-items:center; gap:12px; margin-bottom:22px;}
+  .top .badge{
+    width:46px; height:46px; border-radius:14px; flex:0 0 auto;
+    background:linear-gradient(135deg,var(--accent),var(--accent-3));
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; color:#fff; font-family:'Baloo 2',system-ui,sans-serif; font-weight:800;
+  }
+  .top h1{font-size:1.35rem; margin:0;}
+  .top p{margin:2px 0 0; color:var(--muted); font-size:.92rem;}
+
+  .card{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:18px;
+    padding:22px 22px 24px; margin-bottom:18px;
+    box-shadow:0 2px 10px rgba(24,28,52,.05);
+  }
+
+  /* --- identificación --- */
+  #screen-id .field{margin-bottom:16px;}
+  #screen-id label{display:block; font-weight:700; margin-bottom:6px; font-size:.92rem; color:var(--ink-soft);}
+  #screen-id input[type=text]{
+    width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid var(--line);
+    font-family:inherit; font-size:1rem; background:var(--bg-panel-2); color:var(--ink);
+  }
+  #screen-id input[type=text]:focus{outline:none; border-color:var(--accent);}
+  .email-box{
+    display:flex; align-items:center; gap:10px;
+    background:var(--bg-panel-2); border:1.5px dashed var(--line); border-radius:12px;
+    padding:12px 14px; margin-bottom:18px; font-weight:700; color:var(--accent); word-break:break-all;
+  }
+  .email-box.err{color:var(--bad); border-color:var(--bad);}
+
+  /* --- progreso --- */
+  .blocks-nav{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+  .blocks-nav button{
+    font-family:inherit; font-size:.82rem; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer;
+    background:var(--bg-panel-2); color:var(--muted); border:1.5px solid transparent;
+  }
+  .blocks-nav button.done{background:rgba(10,143,91,.12); color:var(--ok);}
+  .blocks-nav button:hover{border-color:var(--line);}
+  .progress{
+    position:sticky; top:0; z-index:5; background:var(--bg); padding:8px 0 10px; margin-bottom:10px;
+    display:flex; align-items:center; gap:12px; font-size:.85rem; font-weight:800; color:var(--ink-soft);
+  }
+  .progress .bar{flex:1; height:10px; border-radius:99px; background:var(--bg-panel-2); overflow:hidden; border:1px solid var(--line);}
+  .progress .bar i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--accent),var(--accent-3)); transition:width .25s;}
+
+  .block-title{display:flex; align-items:center; gap:10px; margin:26px 0 10px;}
+  .block-title:first-child{margin-top:0;}
+  .block-title .dot{width:12px; height:12px; border-radius:50%; background:var(--accent);}
+  .block-title h3{margin:0; font-size:1.2rem;}
+  .b1 .dot{background:var(--accent-2);} .b2 .dot{background:var(--accent-3);}
+  .b3 .dot{background:var(--accent-4);} .b4 .dot{background:var(--accent-5);}
+
+  .q{margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--line);}
+  .q:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+  .q > p.prompt{font-weight:700; margin:0 0 12px; color:var(--ink); display:flex; gap:10px; align-items:flex-start;}
+  .qn{
+    flex:0 0 auto; min-width:26px; height:26px; padding:0 6px; border-radius:99px; margin-top:1px;
+    background:var(--ink); color:#fff; font-size:.78rem; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .q.missing{outline:2px solid rgba(194,42,62,.45); outline-offset:8px; border-radius:6px;}
+
+  .opt-list{display:flex; flex-direction:column; gap:8px;}
+  .opt-list.mono .opt span{font-family:Consolas,'Courier New',monospace; font-size:.95em;}
+  .fig{margin:2px 0 14px; max-width:560px;}
+  .fig svg{display:block; width:100%; height:auto; border-radius:10px;}
+  .opt{
+    display:flex; align-items:flex-start; gap:10px; padding:10px 12px;
+    border-radius:12px; border:1.5px solid var(--line); background:var(--bg-panel-2);
+    cursor:pointer; font-size:.96rem;
+  }
+  .opt input{margin-top:4px; flex:none;}
+  .opt:hover{border-color:var(--accent);}
+  .opt:has(input:checked){border-color:var(--accent); background:rgba(8,145,178,.1);}
+
+  /* ordenar */
+  .order-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;}
+  .order-item{
+    display:flex; align-items:center; gap:10px; padding:10px 12px;
+    border-radius:12px; border:1.5px solid var(--line); background:var(--bg-panel-2);
+    font-size:.94rem; cursor:grab; user-select:none;
+  }
+  .order-item .handle{color:var(--muted); font-size:1.1rem;}
+  .order-item.dragging{opacity:.5;}
+  .order-item .txt{flex:1;}
+  .order-item .num{
+    width:24px; height:24px; border-radius:50%; background:var(--accent-3); color:#fff;
+    font-size:.78rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  }
+  .order-item .mv{
+    border:1.5px solid var(--line); background:var(--bg-panel); color:var(--ink-soft); border-radius:8px;
+    width:32px; height:32px; cursor:pointer; font-size:.8rem; line-height:1; flex:none;
+  }
+  .order-item .mv:hover{border-color:var(--accent); color:var(--accent);}
+
+  /* respuestas cortas */
+  .mini-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media(max-width:480px){.mini-grid{grid-template-columns:1fr;}}
+  .mini-field label{display:block; font-size:.82rem; color:var(--muted); font-weight:700; margin-bottom:4px;}
+  .mini-field input{
+    width:100%; padding:9px 11px; border-radius:10px; border:1.5px solid var(--line);
+    font-family:inherit; font-size:.95rem; background:var(--bg-panel-2); color:var(--ink);
+  }
+  .mini-field input:focus{outline:none; border-color:var(--accent-3);}
+  .short-input{
+    width:100%; max-width:260px; padding:10px 13px; border-radius:10px; border:1.5px solid var(--line);
+    font-family:inherit; font-size:1rem; background:var(--bg-panel-2); color:var(--ink);
+  }
+  .short-input:focus{outline:none; border-color:var(--accent-3);}
+
+  /* emparejar y huecos */
+  select.sel{
+    width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line);
+    font-family:inherit; font-size:.95rem; background:var(--bg-panel-2); color:var(--ink);
+  }
+  select.sel:focus{outline:none; border-color:var(--accent);}
+  select.sel.filled{border-color:var(--accent); background:rgba(8,145,178,.1);}
+  .match-list{display:flex; flex-direction:column; gap:10px;}
+  .match-row{
+    display:grid; grid-template-columns:1fr minmax(180px,38%); gap:12px; align-items:center;
+    padding:10px 12px; border:1.5px solid var(--line); border-radius:12px; background:var(--bg-panel);
+  }
+  @media(max-width:560px){.match-row{grid-template-columns:1fr;}}
+  .match-row .lbl{font-size:.94rem; min-width:0;}
+
+  /* Bloques de Scratch (imágenes generadas con scratch-blocks, Apache-2.0) */
+  .fig .blkfig{overflow-x:auto;}
+  .fig svg.sbk{display:inline-block; width:auto; max-width:100%; height:auto; border-radius:0;}
+  .abcd{display:flex; flex-direction:column; gap:10px;}
+  .abcd-row{display:flex; align-items:center; gap:12px;}
+  .abcd-l{flex:none; width:30px; height:30px; border-radius:50%; background:#1a73e8; color:#fff; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  .abcd-b{overflow-x:auto; min-width:0;}
+  .abcd-b svg.sbk{display:block; width:auto; max-width:100%; height:auto;}
+  .match-blk svg.sbk{display:block; max-width:100%; height:auto;}
+  .fig .blkfig + .blkfig{margin-top:8px;}
+
+.blocklyDraggable {}
+.blocklySvg {
+background-color: #F9F9F9;
+outline: none;
+overflow: hidden;
+position: absolute;
+display: block;
+}
+.blocklyRelativeWrapper {
+position: relative;
+width: 100%;
+height: 100%;
+}
+.blocklyWidgetDiv {
+display: none;
+position: absolute;
+z-index: 99999;
+}
+.injectionDiv {
+height: 100%;
+position: relative;
+overflow: hidden;
+touch-action: none
+}
+.blocklyNonSelectable {
+user-select: none;
+-moz-user-select: none;
+-webkit-user-select: none;
+-ms-user-select: none;
+}
+.blocklyWidgetDiv.fieldTextInput {
+overflow: hidden;
+border: 1px solid;
+box-sizing: border-box;
+transform-origin: 0 0;
+-ms-transform-origin: 0 0;
+-moz-transform-origin: 0 0;
+-webkit-transform-origin: 0 0;
+}
+.blocklyWidgetDiv.fieldTextInput.removableTextInput {
+overflow: visible;
+}
+.blocklyTextDropDownArrow {
+position: absolute;
+}
+.blocklyTextRemoveIcon {
+position: absolute;
+width: 24px;
+height: 24px;
+top: -40px;
+left: 50%;
+margin-left: -12px;
+cursor: pointer;
+}
+.blocklyNonSelectable {
+user-select: none;
+-moz-user-select: none;
+-webkit-user-select: none;
+-ms-user-select: none;
+}
+.blocklyWsDragSurface {
+display: none;
+position: absolute;
+top: 0;
+left: 0;
+}
+.blocklyWsDragSurface.blocklyOverflowVisible {
+overflow: visible;
+}
+.blocklyBlockDragSurface {
+display: none;
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+overflow: visible !important;
+z-index: 50;
+}
+.blocklyTooltipDiv {
+background-color: #ffffc7;
+border: 1px solid #ddc;
+box-shadow: 4px 4px 20px 1px rgba(0,0,0,.15);
+color: #000;
+display: none;
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 9pt;
+opacity: 0.9;
+padding: 2px;
+position: absolute;
+z-index: 100000;
+}
+.blocklyDropDownDiv {
+position: fixed;
+left: 0;
+top: 0;
+z-index: 1000;
+display: none;
+border: 1px solid;
+border-radius: 4px;
+box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, .3);
+padding: 4px;
+-webkit-user-select: none;
+min-height: 15px
+}
+.blocklyDropDownContent {
+max-height: 300px;
+overflow: auto;
+}
+.blocklyDropDownArrow {
+position: absolute;
+left: 0;
+top: 0;
+width: 16px;
+height: 16px;
+z-index: -1;
+background-color: inherit;
+border-color: inherit;
+}
+.blocklyDropDownButton {
+display: inline-block;
+float: left;
+padding: 0;
+margin: 4px;
+border-radius: 4px;
+outline: none;
+border: 1px solid;
+transition: box-shadow .1s;
+cursor: pointer;
+}
+.blocklyDropDownButtonHover {
+box-shadow: 0px 0px 0px 4px rgba(0,0,0,0.1);
+}
+.blocklyDropDownButton:active {
+box-shadow: 0px 0px 0px 6px rgba(0,0,0,0.1);
+}
+.blocklyDropDownButton > img {
+width: 80%;
+height: 80%;
+margin-top: 5%
+}
+.blocklyDropDownPlaceholder {
+display: inline-block;
+float: left;
+padding: 0;
+margin: 4px;
+}
+.blocklyNumPadButton {
+display: inline-block;
+float: left;
+padding: 0;
+width: 48px;
+height: 48px;
+margin: 4px;
+border-radius: 4px;
+background: #547AB2;
+color: white;
+outline: none;
+border: 1px solid #435F91;
+cursor: pointer;
+font-weight: 600;
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 12pt;
+-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+.blocklyNumPadButton > img {
+margin-top: 10%;
+width: 80%;
+height: 80%;
+}
+.blocklyNumPadButton:active {
+background: #435F91;
+-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+.arrowTop {
+border-top: 1px solid;
+border-left: 1px solid;
+border-top-left-radius: 4px;
+border-color: inherit;
+}
+.arrowBottom {
+border-bottom: 1px solid;
+border-right: 1px solid;
+border-bottom-right-radius: 4px;
+border-color: inherit;
+}
+.valueReportBox {
+min-width: 50px;
+max-width: 300px;
+max-height: 200px;
+overflow: auto;
+word-wrap: break-word;
+text-align: center;
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: .8em;
+}
+.blocklyResizeSE {
+cursor: se-resize;
+fill: #aaa;
+}
+.blocklyResizeSW {
+cursor: sw-resize;
+fill: #aaa;
+}
+.blocklyResizeLine {
+stroke: #888;
+stroke-width: 1;
+}
+.blocklyHighlightedConnectionPath {
+fill: none;
+stroke: #fc3;
+stroke-width: 4px;
+}
+.blocklyPath {
+stroke-width: 1px;
+}
+.blocklySelected>.blocklyPath {
+}
+.blocklySelected>.blocklyPathLight {
+display: none;
+}
+.blocklyDraggable {
+cursor: url("x/handopen.cur"), auto;
+cursor: grab;
+cursor: -webkit-grab;
+cursor: -moz-grab;
+}
+.blocklyDragging {
+cursor: url("x/handclosed.cur"), auto;
+cursor: grabbing;
+cursor: -webkit-grabbing;
+cursor: -moz-grabbing;
+}
+.blocklyDraggable:active {
+cursor: url("x/handclosed.cur"), auto;
+cursor: grabbing;
+cursor: -webkit-grabbing;
+cursor: -moz-grabbing;
+}
+.blocklyBlockDragSurface .blocklyDraggable {
+cursor: url("x/handclosed.cur"), auto;
+cursor: grabbing;
+cursor: -webkit-grabbing;
+cursor: -moz-grabbing;
+}
+.blocklyDragging.blocklyDraggingDelete {
+cursor: url("x/handdelete.cur"), auto;
+}
+.blocklyDragging.blocklyDraggingMouseThrough {
+pointer-events: none;
+}
+.blocklyToolboxDelete {
+cursor: url("x/handdelete.cur"), auto;
+}
+.blocklyToolboxGrab {
+cursor: url("x/handclosed.cur"), auto;
+cursor: grabbing;
+cursor: -webkit-grabbing;
+}
+.blocklyDragging>.blocklyPath,
+.blocklyDragging>.blocklyPathLight {
+fill-opacity: 1.0;
+stroke-opacity: 1.0;
+}
+.blocklyDragging>.blocklyPath {
+}
+.blocklyDisabled>.blocklyPath {
+fill-opacity: .5;
+stroke-opacity: .5;
+}
+.blocklyInsertionMarker>.blocklyPath {
+stroke: none;
+}
+.blocklyText {
+fill: #fff;
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 12pt;
+font-weight: 500;
+}
+.blocklyTextTruncated {
+font-size: 11pt;
+}
+.blocklyNonEditableText>text {
+pointer-events: none;
+}
+.blocklyNonEditableText>text,
+.blocklyEditableText>text {
+fill: #575E75;
+}
+.blocklyEditableText>.blocklyEditableLabel {
+fill: #fff;
+}
+.blocklyDropdownText {
+fill: #fff !important;
+}
+.blocklyBubbleText {
+fill: #575E75;
+}
+.blocklyFlyout {
+position: absolute;
+z-index: 20;
+}
+.blocklyFlyoutButton {
+fill: none;
+pointer-events: all;
+}
+.blocklyFlyoutButtonBackground {
+stroke: #c6c6c6;
+}
+.blocklyFlyoutButton .blocklyText {
+fill: #575E75;
+}
+.blocklyFlyoutButtonShadow {
+fill: transparent;
+}
+.blocklyFlyoutButton:hover {
+fill: white;
+cursor: pointer;
+}
+.blocklyFlyoutLabel {
+cursor: default;
+}
+.blocklyFlyoutLabelBackground {
+opacity: 0;
+}
+.blocklyTouchTargetBackground {
+fill: transparent;
+cursor: pointer;
+}
+.blocklyFlyoutLabelText {
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 14pt;
+fill: #575E75;
+font-weight: bold;
+}
+.blocklySvg text, .blocklyBlockDragSurface text, .blocklyFlyout text, .blocklyToolboxDiv text {
+user-select: none;
+-moz-user-select: none;
+-webkit-user-select: none;
+cursor: inherit;
+}
+.blocklyHidden {
+display: none;
+}
+.blocklyFieldDropdown:not(.blocklyHidden) {
+display: block;
+}
+.blocklyIconGroup {
+cursor: default;
+}
+.blocklyIconGroup:not(:hover),
+.blocklyIconGroupReadonly {
+opacity: .6;
+}
+.blocklyIconShape {
+fill: #00f;
+stroke: #fff;
+stroke-width: 1px;
+}
+.blocklyIconSymbol {
+fill: #fff;
+}
+.blocklyMinimalBody {
+margin: 0;
+padding: 0;
+}
+.blocklyCommentForeignObject {
+position: relative;
+z-index: 0;
+}
+.blocklyCommentRect {
+fill: #E7DE8E;
+stroke: #bcA903;
+stroke-width: 1px
+}
+.blocklyCommentTarget {
+fill: transparent;
+stroke: #bcA903;
+}
+.blocklyCommentTargetFocused {
+fill: none;
+}
+.blocklyCommentHandleTarget {
+fill: none;
+}
+.blocklyCommentHandleTargetFocused {
+fill: transparent;
+}
+.blocklyFocused>.blocklyCommentRect {
+fill: #B9B272;
+stroke: #B9B272;
+}
+.blocklySelected>.blocklyCommentTarget {
+stroke: #fc3;
+stroke-width: 3px;
+}
+.blocklyCommentTextarea {
+background-color: #fef49c;
+border: 0;
+outline: 0;
+margin: 0;
+padding: 3px;
+resize: none;
+display: block;
+overflow: hidden;
+}
+.blocklyCommentDeleteIcon {
+cursor: pointer;
+fill: #000;
+display: none
+}
+.blocklySelected > .blocklyCommentDeleteIcon {
+display: block
+}
+.blocklyDeleteIconShape {
+fill: #000;
+stroke: #000;
+stroke-width: 1px;
+}
+.blocklyDeleteIconShape.blocklyDeleteIconHighlighted {
+stroke: #fc3;
+}
+.scratchCommentForeignObject {
+position: relative;
+}
+.scratchCommentBody {
+background-color: #fef49c;
+border-radius: 4px;
+}
+.scratchCommentRect {
+fill: #fef49c;
+}
+.scratchCommentTarget {
+fill: transparent;
+}
+.scratchWorkspaceCommentBorder {
+stroke: #bcA903;
+stroke-width: 1px;
+}
+.scratchCommentTargetFocused {
+fill: none;
+}
+.scratchCommentTopBar {
+fill: #000000;
+fill-opacity: 0.1
+}
+.scratchCommentText {
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 12pt;
+font-weight: 400;
+}
+.scratchCommentTextarea {
+background-color: #fef49c;
+border: 0;
+outline: 0;
+padding: 0;
+resize: none;
+overflow: hidden;
+}
+.scratchCommentTextarea::placeholder {
+color: rgba(0,0,0,0.5);
+font-style: italic;
+}
+.scratchCommentResizeSE {
+cursor: se-resize;
+fill: transparent;
+}
+.scratchCommentResizeSW {
+cursor: sw-resize;
+fill: transparent;
+}
+.blocklyHtmlInput {
+border: none;
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 12pt;
+height: 100%;
+margin: 0;
+outline: none;
+box-sizing: border-box;
+width: 100%;
+text-align: center;
+color: #575E75;
+font-weight: 500;
+}
+.blocklyMainBackground {
+stroke-width: 1;
+stroke: #c6c6c6;
+}
+.blocklyMutatorBackground {
+fill: #fff;
+stroke: #ddd;
+stroke-width: 1;
+}
+.blocklyFlyoutBackground {
+fill: #F9F9F9;
+fill-opacity: .8;
+}
+.blocklyMainWorkspaceScrollbar {
+z-index: 20;
+}
+.blocklyFlyoutScrollbar {
+z-index: 30;
+}
+.blocklyScrollbarHorizontal, .blocklyScrollbarVertical {
+position: absolute;
+outline: none;
+}
+.blocklyScrollbarBackground {
+opacity: 0;
+}
+.blocklyScrollbarHandle {
+fill: #CECDCE;
+}
+.blocklyScrollbarBackground:hover+.blocklyScrollbarHandle,
+.blocklyScrollbarHandle:hover {
+fill: #CECDCEHover;
+}
+.blocklyZoom>image {
+opacity: 1;
+}
+.blocklyFlyout .blocklyScrollbarHandle {
+fill: #bbb;
+}
+.blocklyFlyout .blocklyScrollbarBackground:hover+.blocklyScrollbarHandle,
+.blocklyFlyout .blocklyScrollbarHandle:hover {
+fill: #aaa;
+}
+.blocklyInvalidInput {
+background: #faa;
+}
+.blocklyAngleCircle {
+stroke: #3373CC;
+stroke-width: 1;
+fill: #4280D7;
+}
+.blocklyAngleCenterPoint {
+stroke: #fff;
+stroke-width: 1;
+fill: #fff;
+}
+.blocklyAngleDragHandle {
+stroke: #fff;
+stroke-width: 5;
+stroke-opacity: 0.25;
+fill: #fff;
+cursor: pointer;
+}
+.blocklyAngleDragArrow {
+pointer-events: none
+}
+.blocklyAngleMarks {
+stroke: #fff;
+stroke-width: 1;
+stroke-opacity: 0.5;
+}
+.blocklyAngleGauge {
+fill: #fff;
+fill-opacity: 0.20;
+}
+.blocklyAngleLine {
+stroke: #fff;
+stroke-width: 1;
+stroke-linecap: round;
+pointer-events: none;
+}
+.blocklyContextMenu {
+border-radius: 4px;
+max-height: 100%;
+}
+.blocklyDropdownMenu {
+padding: 0 !important;
+}
+.blocklyDropDownNumPad {
+background-color: #547AB2;
+}
+.blocklyWidgetDiv .goog-option-selected .goog-menuitem-checkbox,
+.blocklyWidgetDiv .goog-option-selected .goog-menuitem-icon {
+background: url(x/sprites.png) no-repeat -48px -16px !important;
+}
+.blocklyToolboxDiv {
+background-color: #FFFFFF;
+color: #575E75;
+overflow-x: visible;
+overflow-y: auto;
+position: absolute;
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+z-index: 40;
+-webkit-tap-highlight-color: transparent;
+}
+.blocklyTreeRoot {
+padding: 4px 0;
+}
+.blocklyTreeRoot:focus {
+outline: none;
+}
+.blocklyTreeRow {
+height: 22px;
+line-height: 22px;
+margin-bottom: 3px;
+padding-right: 8px;
+white-space: nowrap;
+}
+.blocklyHorizontalTree {
+float: left;
+margin: 1px 5px 8px 0;
+}
+.blocklyHorizontalTreeRtl {
+float: right;
+margin: 1px 0 8px 5px;
+}
+.blocklyToolboxDiv[dir="RTL"] .blocklyTreeRow {
+margin-left: 8px;
+}
+.blocklyTreeRow:not(.blocklyTreeSelected):hover {
+background-color: #e4e4e4;
+}
+.blocklyTreeSeparator {
+border-bottom: solid #e5e5e5 1px;
+height: 0;
+margin: 5px 0;
+}
+.blocklyTreeSeparatorHorizontal {
+border-right: solid #e5e5e5 1px;
+width: 0;
+padding: 5px 0;
+margin: 0 5px;
+}
+.blocklyTreeIcon {
+background-image: url(x/sprites.png);
+height: 16px;
+vertical-align: middle;
+width: 16px;
+}
+.blocklyTreeIconClosedLtr {
+background-position: -32px -1px;
+}
+.blocklyTreeIconClosedRtl {
+background-position: 0px -1px;
+}
+.blocklyTreeIconOpen {
+background-position: -16px -1px;
+}
+.blocklyTreeSelected>.blocklyTreeIconClosedLtr {
+background-position: -32px -17px;
+}
+.blocklyTreeSelected>.blocklyTreeIconClosedRtl {
+background-position: 0px -17px;
+}
+.blocklyTreeSelected>.blocklyTreeIconOpen {
+background-position: -16px -17px;
+}
+.blocklyTreeIconNone,
+.blocklyTreeSelected>.blocklyTreeIconNone {
+background-position: -48px -1px;
+}
+.blocklyTreeLabel {
+cursor: default;
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 16px;
+padding: 0 3px;
+vertical-align: middle;
+}
+.blocklyToolboxDelete .blocklyTreeLabel {
+cursor: url("x/handdelete.cur"), auto;
+}
+.blocklyTreeSelected .blocklyTreeLabel {
+color: #fff;
+}
+.blocklyDropDownDiv .goog-slider-horizontal {
+margin: 8px;
+height: 22px;
+width: 150px;
+position: relative;
+outline: none;
+border-radius: 11px;
+margin-bottom: 20px;
+}
+.blocklyDropDownDiv .goog-slider-horizontal .goog-slider-thumb {
+width: 26px;
+height: 26px;
+top: -1px;
+position: absolute;
+background-color: white;
+border-radius: 100%;
+-webkit-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.15);
+-moz-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.15);
+box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.15);
+}
+.scratchEyedropper {
+background: none;
+outline: none;
+border: none;
+width: 100%;
+text-align: center;
+border-top: 1px solid #ddd;
+padding-top: 5px;
+cursor: pointer;
+}
+.scratchColourPickerLabel {
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 0.65rem;
+color: #575E75;
+margin: 8px;
+}
+.scratchColourPickerLabelText {
+font-weight: bold;
+}
+.scratchColourPickerReadout {
+margin-left: 10px;
+}
+.scratchMatrixButtonDiv {
+width: 50%;
+text-align: center;
+float: left;
+}
+.scratchNotePickerKeyLabel {
+font-family: "Helvetica Neue", Helvetica, sans-serif;
+font-size: 0.75rem;
+fill: #575E75;
+pointer-events: none;
+}
+.blocklyWidgetDiv .goog-menu {
+background: #fff;
+border-color: #ccc #666 #666 #ccc;
+border-style: solid;
+border-width: 1px;
+cursor: default;
+font: normal 13px "Helvetica Neue", Helvetica, sans-serif;
+margin: 0;
+outline: none;
+padding: 4px 0;
+position: absolute;
+overflow-y: auto;
+overflow-x: hidden;
+z-index: 20000;
+}
+.blocklyDropDownDiv .goog-menu {
+cursor: default;
+font: normal 13px "Helvetica Neue", Helvetica, sans-serif;
+outline: none;
+z-index: 20000;
+}
+.blocklyWidgetDiv .goog-menuitem {
+color: #000;
+font: normal 13px "Helvetica Neue", Helvetica, sans-serif;
+list-style: none;
+margin: 0;
+padding: 4px 7em 4px 28px;
+white-space: nowrap;
+}
+.blocklyDropDownDiv .goog-menuitem {
+color: #fff;
+font: normal 13px "Helvetica Neue", Helvetica, sans-serif;
+font-weight: bold;
+list-style: none;
+margin: 0;
+min-height: 24px;
+padding: 4px 7em 4px 28px;
+white-space: nowrap;
+}
+.blocklyWidgetDiv .goog-menuitem.goog-menuitem-rtl, 
+.blocklyDropDownDiv .goog-menuitem.goog-menuitem-rtl {
+padding-left: 7em;
+padding-right: 28px;
+}
+.blocklyWidgetDiv .goog-menu-nocheckbox .goog-menuitem,
+.blocklyWidgetDiv .goog-menu-noicon .goog-menuitem, 
+.blocklyDropDownDiv .goog-menu-nocheckbox .goog-menuitem,
+.blocklyDropDownDiv .goog-menu-noicon .goog-menuitem { 
+padding-left: 12px;
+}
+.blocklyWidgetDiv .goog-menu-noaccel .goog-menuitem, 
+.blocklyDropDownDiv .goog-menu-noaccel .goog-menuitem {
+padding-right: 20px;
+}
+.blocklyWidgetDiv .goog-menuitem-content 
+.blocklyDropDownDiv .goog-menuitem-content {
+color: #000;
+font: normal 13px "Helvetica Neue", Helvetica, sans-serif;
+}
+.blocklyWidgetDiv .goog-menuitem-disabled .goog-menuitem-accel,
+.blocklyWidgetDiv .goog-menuitem-disabled .goog-menuitem-content, 
+.blocklyDropDownDiv .goog-menuitem-disabled .goog-menuitem-accel,
+.blocklyDropDownDiv .goog-menuitem-disabled .goog-menuitem-content {
+color: #ccc !important;
+}
+.blocklyWidgetDiv .goog-menuitem-disabled .goog-menuitem-icon, 
+.blocklyDropDownDiv .goog-menuitem-disabled .goog-menuitem-icon {
+opacity: 0.3;
+-moz-opacity: 0.3;
+filter: alpha(opacity=30);
+}
+.blocklyWidgetDiv .goog-menuitem-highlight,
+.blocklyWidgetDiv .goog-menuitem-hover {
+background-color: #d6e9f8;
+border-color: #d6e9f8;
+border-style: dotted;
+border-width: 1px 0;
+padding-bottom: 3px;
+padding-top: 3px;
+}
+.blocklyDropDownDiv .goog-menuitem-highlight,
+.blocklyDropDownDiv .goog-menuitem-hover {
+background-color: rgba(0, 0, 0, 0.2);
+}
+.blocklyWidgetDiv .goog-menuitem-checkbox,
+.blocklyWidgetDiv .goog-menuitem-icon, 
+.blocklyDropDownDiv .goog-menuitem-checkbox,
+.blocklyDropDownDiv .goog-menuitem-icon {
+background-repeat: no-repeat;
+height: 16px;
+left: 6px;
+position: absolute;
+right: auto;
+vertical-align: middle;
+width: 16px;
+}
+.blocklyWidgetDiv .goog-option-selected .goog-menuitem-checkbox,
+.blocklyWidgetDiv .goog-option-selected .goog-menuitem-icon,
+.blocklyDropDownDiv .goog-option-selected .goog-menuitem-checkbox,
+.blocklyDropDownDiv .goog-option-selected .goog-menuitem-icon {
+background: url(x/sprites.png) no-repeat -48px -16px !important;
+position: static;
+float: left;
+margin-left: -24px;
+}
+.blocklyWidgetDiv .goog-menuitem-rtl .goog-menuitem-checkbox,
+.blocklyWidgetDiv .goog-menuitem-rtl .goog-menuitem-icon,
+.blocklyDropDownDiv .goog-menuitem-rtl .goog-menuitem-checkbox,
+.blocklyDropDownDiv .goog-menuitem-rtl .goog-menuitem-icon {
+float: right;
+margin-right: -24px;
+}
+.blocklyWidgetDiv .goog-menuitem-accel, 
+.blocklyDropDownDiv .goog-menuitem-accel {
+color: #999;
+direction: ltr;
+left: auto;
+padding: 0 6px;
+position: absolute;
+right: 0;
+text-align: right;
+}
+.blocklyWidgetDiv .goog-menuitem-rtl .goog-menuitem-accel, 
+.blocklyDropDownDiv .goog-menuitem-rtl .goog-menuitem-accel {
+left: 0;
+right: auto;
+text-align: left;
+}
+.blocklyWidgetDiv .goog-menuitem-mnemonic-hint, 
+.blocklyDropDownDiv .goog-menuitem-mnemonic-hint {
+text-decoration: underline;
+}
+.blocklyWidgetDiv .goog-menuitem-mnemonic-separator, 
+.blocklyDropDownDiv .goog-menuitem-mnemonic-separator {
+color: #999;
+font-size: 12px;
+padding-left: 4px;
+}
+.blocklyWidgetDiv .goog-menuseparator, 
+.blocklyDropDownDiv .goog-menuseparator {
+border-top: 1px solid #ccc;
+margin: 4px 0;
+padding: 0;
+}
+.blocklyFlyoutCheckbox {
+fill: white;
+stroke: #c8c8c8;
+}
+.checked > .blocklyFlyoutCheckbox {
+fill: #4C97FF;
+stroke: #3373CC;
+}
+.blocklyFlyoutCheckboxPath {
+fill: transparent;
+stroke: white;
+stroke-width: 3;
+stroke-linecap: round;
+stroke-linejoin: round;
+}
+.scratchCategoryMenu {
+width: 60px;
+background: #FFFFFF;
+color: #575E75;
+font-size: .7rem;
+user-select: none;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+}
+.scratchCategoryMenuHorizontal {
+width: 100%;
+height: 50px;
+background: #FFFFFF;
+color: #575E75;
+font-size: .7em;
+user-select: none;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+}
+.scratchCategoryMenuHorizontal .scratchCategoryMenuRow {
+float: left;
+margin: 3px;
+}
+.scratchCategoryMenuRow {
+}
+.scratchCategoryMenuItem {
+padding: 0.375rem 0px;
+cursor: pointer;
+text-align: center;
+}
+.scratchCategoryMenuHorizontal .scratchCategoryMenuItem {
+padding: 6px 5px;
+}
+.scratchCategoryMenuItem.categorySelected {
+background: #e9eef2;
+}
+.scratchCategoryItemBubble {
+width: 1.25rem;
+height: 1.25rem;
+border: 1px solid;
+border-radius: 100%;
+margin: 0 auto 0.125rem;
+}
+.scratchCategoryItemIcon {
+width: 1.25rem;
+height: 1.25rem;
+margin: 0 auto 0.125rem;
+background-size: 100%;
+}
+.scratchCategoryMenuItem:hover {
+color: #4C97FF !important;
+}
+
+  .match-row .ico{width:46px; height:46px; display:block; color:var(--ink);}
+  .gaps-text{font-size:1rem; line-height:2.5;}
+  .gaps-text select.sel{display:inline-block; width:auto; min-width:120px; max-width:100%; padding:6px 10px; margin:0 2px; line-height:1.3;}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; border:none; cursor:pointer;
+    font-family:'Baloo 2',system-ui,sans-serif; font-weight:700; font-size:1rem;
+    padding:13px 22px; border-radius:14px; color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-3));
+    box-shadow:0 4px 14px rgba(190,24,101,.25);
+  }
+  .btn:disabled{opacity:.5; cursor:not-allowed; box-shadow:none;}
+  .btn.ghost{background:none; color:var(--accent); box-shadow:none; border:1.5px solid var(--line);}
+  .actions{display:flex; justify-content:flex-end; gap:10px; margin-top:6px; flex-wrap:wrap;}
+  .hint{font-size:.85rem; color:var(--muted); margin:10px 0 0;}
+
+  /* resultado */
+  #screen-done .score-circle{
+    width:128px; height:128px; border-radius:50%; margin:6px auto 18px;
+    display:flex; align-items:center; justify-content:center;
+    background:conic-gradient(var(--accent) calc(var(--pct,0)*1%), var(--bg-panel-2) 0);
+  }
+  #screen-done .score-circle .inner{
+    width:102px; height:102px; border-radius:50%; background:var(--bg-panel);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  #screen-done .score-circle .inner b{font-size:1.8rem; font-family:'Baloo 2',system-ui,sans-serif; line-height:1.1;}
+  #screen-done .score-circle .inner span{font-size:.75rem; color:var(--muted);}
+  #screen-done .msg{text-align:center; color:var(--ink-soft); margin:0 0 14px;}
+  .block-result{padding:10px 0; border-bottom:1px solid var(--line); font-size:.94rem;}
+  .block-result:last-child{border-bottom:none;}
+  .block-result .row{display:flex; justify-content:space-between; gap:10px; font-weight:700;}
+  .block-result .rev{font-weight:700; font-size:.8rem; color:var(--warn); margin-left:8px;}
+  .block-result .mbar{height:8px; border-radius:99px; background:var(--bg-panel-2); margin-top:6px; overflow:hidden;}
+  .block-result .mbar i{display:block; height:100%; background:var(--ok);}
+  .block-result.low .mbar i{background:var(--warn);}
+
+  .spinner{
+    width:18px; height:18px; border-radius:50%; border:3px solid rgba(255,255,255,.4);
+    border-top-color:#fff; animation:spin .8s linear infinite; display:inline-block;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .error-box{
+    background:rgba(194,42,62,.08); border:1.5px solid rgba(194,42,62,.3); color:var(--bad);
+    border-radius:12px; padding:12px 14px; font-weight:600; font-size:.92rem; margin:14px 0 0;
+  }
+  .warn-box{
+    background:rgba(180,83,9,.09); border:1.5px solid rgba(180,83,9,.35); color:var(--warn);
+    border-radius:12px; padding:12px 14px; font-weight:700; font-size:.92rem; margin:14px 0 0;
+  }
+  .center-text{text-align:center;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+</style>
+</head>
+<body>
+
+<!-- símbolos de licencias (dibujos propios) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-cc" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" stroke="currentColor" stroke-width="3"/><path d="M17.5 15.2a5.6 5.6 0 1 0 0 9.6M27.5 15.2a5.6 5.6 0 1 0 0 9.6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" transform="translate(-1.5 0) scale(.92) translate(1.6 1.6)"/></symbol>
+  <symbol id="i-by" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" stroke="currentColor" stroke-width="3"/><circle cx="20" cy="12.5" r="3.6" fill="currentColor"/><path d="M14 18.5h12v8h-3v7h-6v-7h-3z" fill="currentColor"/></symbol>
+  <symbol id="i-nc" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" stroke="currentColor" stroke-width="3"/><text x="20" y="27" text-anchor="middle" font-size="21" font-weight="800" font-family="Arial,sans-serif" fill="currentColor">$</text><line x1="9.5" y1="30" x2="30.5" y2="10" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-sa" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" stroke="currentColor" stroke-width="3"/><path d="M27.5 16.5A9 9 0 1 0 29 22" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><polygon points="22,9.5 31.5,13.5 25,20.5" fill="currentColor"/></symbol>
+  <symbol id="i-nd" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" stroke="currentColor" stroke-width="3"/><rect x="11" y="14.5" width="18" height="4.2" rx="1" fill="currentColor"/><rect x="11" y="22" width="18" height="4.2" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-copyright" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" stroke="currentColor" stroke-width="3"/><path d="M26.5 15.3a8 8 0 1 0 0 9.4" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-copyleft" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" stroke="currentColor" stroke-width="3"/><path d="M13.5 15.3a8 8 0 1 1 0 9.4" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-pd" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" stroke="currentColor" stroke-width="3"/><path d="M26.5 15.3a8 8 0 1 0 0 9.4" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><line x1="9" y1="31" x2="31" y2="9" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/></symbol>
+</svg>
+
+<div class="wrap">
+
+  <div class="top">
+    <div class="badge" id="topBadge">📝</div>
+    <div>
+      <h1 id="topTitle">Cuestionario</h1>
+      <p id="topSub"></p>
+    </div>
+  </div>
+
+  <!-- ============ PANTALLA 1: IDENTIFICACIÓN ============ -->
+  <div class="screen active" id="screen-id">
+    <div class="card">
+      <? if (email) { ?>
+        <div class="email-box">✅ <?= email ?></div>
+      <? } else { ?>
+        <div class="email-box err">⚠️ No se ha podido detectar tu cuenta educativa de Google. Pide ayuda a tu profesor antes de continuar.</div>
+      <? } ?>
+
+      <div id="idError"></div>
+
+      <div id="idForm">
+        <div class="field">
+          <label for="fNombre">Nombre</label>
+          <input type="text" id="fNombre" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="fApellidos">Apellidos</label>
+          <input type="text" id="fApellidos" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="fGrupo">Grupo (ej: 1ºA)</label>
+          <input type="text" id="fGrupo" autocomplete="off">
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="btnStart" <?= email ? '' : 'disabled' ?>>Empezar el cuestionario →</button>
+        </div>
+        <p class="hint">Tus respuestas se guardan y tu nota se envía como borrador a tu profesor en Classroom. Puedes repetir el cuestionario: se guarda tu mejor nota.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PANTALLA 2: CUESTIONARIO ============ -->
+  <div class="screen" id="screen-quiz">
+    <div class="blocks-nav" id="blocksNav"></div>
+    <div class="progress"><span id="progText">0 / 0</span><div class="bar"><i id="progFill"></i></div></div>
+    <div class="card" id="questionsHost"></div>
+    <div id="errBox"></div>
+    <div class="actions">
+      <button class="btn" id="btnSubmit">Enviar cuestionario ✓</button>
+    </div>
+  </div>
+
+  <!-- ============ PANTALLA 3: RESULTADO ============ -->
+  <div class="screen" id="screen-done">
+    <div class="card center-text">
+      <div class="score-circle" id="scoreCircle">
+        <div class="inner"><b id="scoreNum">–</b><span>sobre 10</span></div>
+      </div>
+      <p class="msg" id="scoreMsg"></p>
+      <div id="blockResults" style="text-align:left"></div>
+      <div class="actions" style="justify-content:center;margin-top:18px">
+        <button class="btn ghost" id="btnRetry">Hacer otro intento</button>
+      </div>
+      <div id="retryErr"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var QUIZ = <?!= quizJson ?>;
+  var EMAIL = <?!= JSON.stringify(email) ?>;
+
+  var screens = {
+    id: document.getElementById('screen-id'),
+    quiz: document.getElementById('screen-quiz'),
+    done: document.getElementById('screen-done')
+  };
+  function showScreen(name){
+    Object.keys(screens).forEach(function(k){ screens[k].classList.toggle('active', k===name); });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function fmt(n){ return String(n).replace('.', ','); }
+  function byEs(a, b){ return String(a).localeCompare(String(b), 'es'); }
+
+  // ---------- cabecera y errores ----------
+  if (QUIZ && !QUIZ.error){
+    document.getElementById('topBadge').textContent = QUIZ.icono || '📝';
+    document.getElementById('topTitle').textContent = 'Cuestionario ' + QUIZ.titulo;
+    document.getElementById('topSub').textContent = QUIZ.subtitulo || '';
+    document.title = 'Cuestionario ' + QUIZ.titulo;
+  } else {
+    document.getElementById('idForm').style.display = 'none';
+    var eb = el('div', 'error-box', '⚠️ ' + ((QUIZ && QUIZ.error) || 'No se ha podido cargar el cuestionario.'));
+    document.getElementById('idError').appendChild(eb);
+  }
+
+  // ---------- pantalla 1 ----------
+  var idError = document.getElementById('idError');
+  document.getElementById('btnStart').addEventListener('click', function(){
+    idError.innerHTML = '';
+    if (!val('fNombre') || !val('fApellidos') || !val('fGrupo')){
+      idError.appendChild(el('div', 'error-box', 'Escribe tu nombre, tus apellidos y tu grupo para empezar.'));
+      return;
+    }
+    startQuiz();
+  });
+  function val(id){ return document.getElementById(id).value.trim(); }
+
+  // ---------- cuestionario ----------
+  var host = document.getElementById('questionsHost');
+  var attemptTouched = {};   // preguntas de ordenar ya tocadas
+
+  function startQuiz(){
+    attemptTouched = {};
+    missingWarned = false;
+    document.getElementById('errBox').innerHTML = '';
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = 'Enviar cuestionario ✓';
+    renderQuestions();
+    updateProgress();
+    showScreen('quiz');
+  }
+
+  function renderQuestions(){
+    host.innerHTML = '';
+    var lastBlock = null, n = 0, bi = -1;
+    var order = QUIZ.blocks.map(function(b){ return b.id; });
+    QUIZ.questions.forEach(function(q){
+      if (q.block !== lastBlock){
+        bi = order.indexOf(q.block);
+        var bt = el('div', 'block-title b' + (bi % 5));
+        bt.id = 'blk-' + q.block;
+        bt.appendChild(el('span', 'dot'));
+        bt.appendChild(el('h3', null, labelOf(q.block)));
+        host.appendChild(bt);
+        lastBlock = q.block;
+      }
+      n++;
+      host.appendChild(renderQuestion(q, n));
+    });
+    var nav = document.getElementById('blocksNav');
+    nav.innerHTML = '';
+    QUIZ.blocks.forEach(function(b){
+      var btn = el('button', null, b.label);
+      btn.type = 'button';
+      btn.dataset.block = b.id;
+      btn.addEventListener('click', function(){
+        var t = document.getElementById('blk-' + b.id);
+        if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      nav.appendChild(btn);
+    });
+  }
+  function labelOf(blockId){
+    for (var i = 0; i < QUIZ.blocks.length; i++){ if (QUIZ.blocks[i].id === blockId) return QUIZ.blocks[i].label; }
+    return blockId;
+  }
+
+  function shuffle(arr){
+    for (var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+  function hintEl(text){ return el('p', 'hint', text); }
+
+  function makeRadio(name, value, label){
+    var l = el('label', 'opt');
+    var i = document.createElement('input');
+    i.type = 'radio'; i.name = name; i.value = value;
+    l.appendChild(i); l.appendChild(el('span', null, label));
+    return l;
+  }
+  function makeCheckbox(name, value, label){
+    var l = el('label', 'opt');
+    var i = document.createElement('input');
+    i.type = 'checkbox'; i.name = name; i.value = value;
+    l.appendChild(i); l.appendChild(el('span', null, label));
+    return l;
+  }
+  function makeSelect(choices, ariaLabel){
+    var s = el('select', 'sel');
+    s.setAttribute('aria-label', ariaLabel || 'Elige una opción');
+    var ph = el('option', null, '— elige —'); ph.value = '';
+    s.appendChild(ph);
+    choices.slice().sort(byEs).forEach(function(c){
+      var o = el('option', null, c); o.value = c; s.appendChild(o);
+    });
+    s.addEventListener('change', function(){ s.classList.toggle('filled', s.value !== ''); });
+    return s;
+  }
+
+  function renderQuestion(q, number){
+    var wrap = el('div', 'q');
+    wrap.dataset.qid = q.id;
+
+    var p = el('p', 'prompt');
+    p.appendChild(el('span', 'qn', String(number)));
+    p.appendChild(el('span', null, q.prompt));
+    wrap.appendChild(p);
+    if (q.fig){
+      var fg = el('div', 'fig');
+      fg.innerHTML = q.fig;   // dibujo SVG propio, enviado por el servidor
+      wrap.appendChild(fg);
+    }
+
+    if (q.type === 'tf'){
+      var list = el('div', 'opt-list');
+      list.appendChild(makeRadio(q.id, 'true', 'Verdadero'));
+      list.appendChild(makeRadio(q.id, 'false', 'Falso'));
+      wrap.appendChild(list);
+
+    } else if (q.type === 'mc'){
+      var opts = q.options.slice();
+      if (!q.noShuffle) shuffle(opts);
+      var list2 = el('div', 'opt-list' + (q.mono ? ' mono' : ''));
+      opts.forEach(function(o){ list2.appendChild(makeRadio(q.id, o, o)); });
+      wrap.appendChild(list2);
+
+    } else if (q.type === 'multi'){
+      var opts3 = q.options.slice();
+      shuffle(opts3);
+      var list3 = el('div', 'opt-list');
+      opts3.forEach(function(o){ list3.appendChild(makeCheckbox(q.id, o, o)); });
+      wrap.appendChild(list3);
+      wrap.appendChild(hintEl('Puede haber más de una respuesta correcta.'));
+
+    } else if (q.type === 'order'){
+      var ol = el('div', 'order-list');
+      ol.dataset.qid = q.id;
+      var order = q.steps.map(function(_, i){ return i; });
+      shuffle(order);
+      order.forEach(function(orig){
+        var item = el('div', 'order-item');
+        item.draggable = true;
+        item.dataset.orig = orig;
+        item.appendChild(el('span', 'handle', '⠿'));
+        item.appendChild(el('span', 'num'));
+        item.appendChild(el('span', 'txt', q.steps[orig]));
+        var up = el('button', 'mv', '▲'); up.type = 'button'; up.setAttribute('aria-label', 'Subir');
+        var dn = el('button', 'mv', '▼'); dn.type = 'button'; dn.setAttribute('aria-label', 'Bajar');
+        up.addEventListener('click', function(){
+          var prev = item.previousElementSibling;
+          if (prev){ ol.insertBefore(item, prev); touched(q.id); renumber(ol); }
+        });
+        dn.addEventListener('click', function(){
+          var next = item.nextElementSibling;
+          if (next){ ol.insertBefore(next, item); touched(q.id); renumber(ol); }
+        });
+        item.appendChild(up); item.appendChild(dn);
+        ol.appendChild(item);
+      });
+      setupDrag(ol, q.id);
+      renumber(ol);
+      wrap.appendChild(ol);
+      wrap.appendChild(hintEl('Ordénalas con las flechas ▲▼ o arrastrando las tarjetas, de la 1 a la ' + q.steps.length + '.'));
+
+    } else if (q.type === 'short'){
+      var inp = el('input', 'short-input');
+      inp.type = 'text'; inp.autocomplete = 'off';
+      wrap.appendChild(inp);
+
+    } else if (q.type === 'short-multi' || q.type === 'char-multi'){
+      var grid = el('div', 'mini-grid');
+      q.items.forEach(function(it, i){
+        var f = el('div', 'mini-field');
+        f.appendChild(el('label', null, it.label));
+        var inp2 = document.createElement('input');
+        inp2.type = 'text'; inp2.dataset.idx = i; inp2.autocomplete = 'off'; inp2.spellcheck = false;
+        f.appendChild(inp2);
+        grid.appendChild(f);
+      });
+      wrap.appendChild(grid);
+      if (q.type === 'short-multi') wrap.appendChild(hintEl(q.hint || 'Escribe la combinación tal cual, por ejemplo: Ctrl+C'));
+
+    } else if (q.type === 'match'){
+      var ml = el('div', 'match-list');
+      q.items.forEach(function(it, i){
+        var row = el('div', 'match-row');
+        var lab = el('div', 'lbl');
+        if (it.svg){
+          var sv = el('div', 'match-blk');
+          sv.innerHTML = it.svg;   // bloque de Scratch dibujado por el servidor
+          lab.appendChild(sv);
+        } else if (it.icon){
+          var ns = 'http://www.w3.org/2000/svg';
+          var svg = document.createElementNS(ns, 'svg');
+          svg.setAttribute('class', 'ico'); svg.setAttribute('viewBox', '0 0 40 40');
+          svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Símbolo ' + (i + 1));
+          var use = document.createElementNS(ns, 'use');
+          use.setAttribute('href', '#' + it.icon);
+          svg.appendChild(use);
+          lab.appendChild(svg);
+        } else {
+          lab.textContent = it.label;
+        }
+        row.appendChild(lab);
+        row.appendChild(makeSelect(q.choices, it.label || ('Símbolo ' + (i + 1))));
+        ml.appendChild(row);
+      });
+      wrap.appendChild(ml);
+
+    } else if (q.type === 'gaps'){
+      var gp = el('div', 'gaps-text');
+      var parts = q.text.split(/\[\[(\d+)\]\]/);
+      parts.forEach(function(part, i){
+        if (i % 2 === 0){ gp.appendChild(document.createTextNode(part)); }
+        else { gp.appendChild(makeSelect(q.bank, 'Hueco ' + (Number(part) + 1))); }
+      });
+      wrap.appendChild(gp);
+    }
+    return wrap;
+  }
+
+  // ---------- ordenar: arrastrar ----------
+  function setupDrag(list, qid){
+    var dragEl = null;
+    list.addEventListener('dragstart', function(e){
+      dragEl = e.target.closest('.order-item');
+      if (!dragEl) return;
+      dragEl.classList.add('dragging');
+      try { e.dataTransfer.setData('text/plain', 'x'); } catch (err) {}
+    });
+    list.addEventListener('dragend', function(){
+      if (dragEl) dragEl.classList.remove('dragging');
+      dragEl = null;
+      touched(qid);
+      renumber(list);
+    });
+    list.addEventListener('dragover', function(e){
+      e.preventDefault();
+      var dragging = list.querySelector('.dragging');
+      if (!dragging) return;
+      var after = afterElement(list, e.clientY);
+      if (after == null) list.appendChild(dragging);
+      else list.insertBefore(dragging, after);
+    });
+  }
+  function afterElement(list, y){
+    var items = Array.prototype.slice.call(list.querySelectorAll('.order-item:not(.dragging)'));
+    var closest = { offset: -Infinity, element: null };
+    items.forEach(function(child){
+      var box = child.getBoundingClientRect();
+      var offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) closest = { offset: offset, element: child };
+    });
+    return closest.element;
+  }
+  function renumber(list){
+    Array.prototype.forEach.call(list.querySelectorAll('.order-item'), function(item, i){
+      item.querySelector('.num').textContent = i + 1;
+    });
+  }
+  function touched(qid){ attemptTouched[qid] = true; updateProgress(); }
+
+  // ---------- recogida de respuestas ----------
+  function qEl(q){ return host.querySelector('.q[data-qid="' + q.id + '"]'); }
+
+  function readAnswer(q){
+    var e = qEl(q);
+    if (!e) return null;
+    if (q.type === 'tf'){
+      var c = e.querySelector('input[type=radio]:checked');
+      return c ? (c.value === 'true') : null;
+    }
+    if (q.type === 'mc'){
+      var c2 = e.querySelector('input[type=radio]:checked');
+      return c2 ? c2.value : null;
+    }
+    if (q.type === 'multi'){
+      return Array.prototype.map.call(e.querySelectorAll('input[type=checkbox]:checked'), function(x){ return x.value; });
+    }
+    if (q.type === 'order'){
+      return Array.prototype.map.call(e.querySelectorAll('.order-item'), function(it){ return it.dataset.orig; });
+    }
+    if (q.type === 'short'){
+      var i1 = e.querySelector('input[type=text]');
+      return i1 ? i1.value.trim() : '';
+    }
+    if (q.type === 'short-multi' || q.type === 'char-multi'){
+      return Array.prototype.map.call(e.querySelectorAll('input[type=text]'), function(x){ return x.value.trim(); });
+    }
+    if (q.type === 'match' || q.type === 'gaps'){
+      return Array.prototype.map.call(e.querySelectorAll('select'), function(s){ return s.value; });
+    }
+    return null;
+  }
+  function isAnswered(q){
+    var a = readAnswer(q);
+    if (q.type === 'order') return true; // el orden que se ve ya es una respuesta
+    if (q.type === 'tf') return a !== null;
+    if (q.type === 'mc') return a !== null;
+    if (q.type === 'short') return a !== '';
+    if (q.type === 'multi') return a.length > 0;
+    // varias casillas o desplegables: contestada cuando están todos rellenos
+    return a.length > 0 && a.every(function(x){ return x !== ''; });
+  }
+  function collectAnswers(){
+    var answers = {};
+    QUIZ.questions.forEach(function(q){ answers[q.id] = readAnswer(q); });
+    return answers;
+  }
+
+  // ---------- progreso ----------
+  function updateProgress(){
+    if (!QUIZ || QUIZ.error || !host.firstChild) return;
+    var total = QUIZ.questions.length, done = 0;
+    var perBlock = {};
+    QUIZ.blocks.forEach(function(b){ perBlock[b.id] = { done: 0, total: 0 }; });
+    QUIZ.questions.forEach(function(q){
+      var ok = isAnswered(q);
+      if (ok) done++;
+      perBlock[q.block].total++;
+      if (ok) perBlock[q.block].done++;
+      var e = qEl(q);
+      if (e && ok) e.classList.remove('missing');
+    });
+    document.getElementById('progText').textContent = 'Contestadas: ' + done + ' / ' + total;
+    document.getElementById('progFill').style.width = (total ? Math.round(done / total * 100) : 0) + '%';
+    Array.prototype.forEach.call(document.querySelectorAll('#blocksNav button'), function(btn){
+      var pb = perBlock[btn.dataset.block];
+      if (!pb) return;
+      btn.textContent = labelOf(btn.dataset.block) + ' · ' + pb.done + '/' + pb.total;
+      btn.classList.toggle('done', pb.done === pb.total);
+    });
+  }
+  host.addEventListener('change', updateProgress);
+  host.addEventListener('input', updateProgress);
+
+  // ---------- envío ----------
+  var btnSubmit = document.getElementById('btnSubmit');
+  var errBox = document.getElementById('errBox');
+  var missingWarned = false;
+
+  btnSubmit.addEventListener('click', function(){
+    errBox.innerHTML = '';
+    var missing = QUIZ.questions.filter(function(q){ return !isAnswered(q); });
+    if (missing.length && !missingWarned){
+      missingWarned = true;
+      missing.forEach(function(q){ var e = qEl(q); if (e) e.classList.add('missing'); });
+      errBox.appendChild(el('div', 'warn-box', 'Te faltan ' + missing.length + (missing.length === 1 ? ' pregunta' : ' preguntas') + ' por contestar (están marcadas en rojo). Si quieres enviar el cuestionario así, pulsa otra vez el botón.'));
+      var first = qEl(missing[0]);
+      if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
+      btnSubmit.textContent = 'Enviar igualmente ✓';
+      return;
+    }
+
+    var payload = {
+      quiz: QUIZ.id,
+      seed: QUIZ.seed,
+      nombre: val('fNombre'),
+      apellidos: val('fApellidos'),
+      grupo: val('fGrupo'),
+      answers: collectAnswers()
+    };
+
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<span class="spinner"></span> Enviando…';
+
+    google.script.run
+      .withSuccessHandler(function(result){ showResult(result); })
+      .withFailureHandler(function(err){
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Enviar cuestionario ✓';
+        errBox.appendChild(el('div', 'error-box', '⚠️ ' + (err && err.message ? err.message : 'No se ha podido enviar el cuestionario. Inténtalo de nuevo.')));
+      })
+      .submitQuiz(payload);
+  });
+
+  function showResult(result){
+    var pct = Math.round((result.score / result.max) * 100);
+    document.getElementById('scoreCircle').style.setProperty('--pct', pct);
+    document.getElementById('scoreNum').textContent = fmt(result.score);
+    document.getElementById('scoreMsg').textContent = result.message;
+
+    var host2 = document.getElementById('blockResults');
+    host2.innerHTML = '';
+    QUIZ.blocks.forEach(function(b){
+      var r = result.perBlock[b.id];
+      if (!r) return;
+      var ratio = r.total ? r.correct / r.total : 0;
+      var row = el('div', 'block-result' + (ratio < 0.6 ? ' low' : ''));
+      var top = el('div', 'row');
+      var left = el('span', null, b.label);
+      if (ratio < 0.6) left.appendChild(el('span', 'rev', '📖 repásalo en el libro'));
+      top.appendChild(left);
+      top.appendChild(el('span', null, fmt(r.correct) + ' de ' + fmt(r.total)));
+      row.appendChild(top);
+      var bar = el('div', 'mbar'); var fill = el('i'); fill.style.width = Math.round(ratio * 100) + '%'; bar.appendChild(fill);
+      row.appendChild(bar);
+      host2.appendChild(row);
+    });
+    document.getElementById('retryErr').innerHTML = '';
+    document.getElementById('btnRetry').disabled = false;
+    showScreen('done');
+  }
+
+  // ---------- otro intento (nuevas preguntas al azar) ----------
+  document.getElementById('btnRetry').addEventListener('click', function(){
+    var b = this;
+    b.disabled = true;
+    document.getElementById('retryErr').innerHTML = '';
+    google.script.run
+      .withSuccessHandler(function(d){
+        if (!d || d.error){
+          b.disabled = false;
+          document.getElementById('retryErr').appendChild(el('div', 'error-box', '⚠️ ' + ((d && d.error) || 'No se ha podido preparar otro intento.')));
+          return;
+        }
+        QUIZ = d;
+        startQuiz();
+      })
+      .withFailureHandler(function(err){
+        b.disabled = false;
+        document.getElementById('retryErr').appendChild(el('div', 'error-box', '⚠️ ' + (err && err.message ? err.message : 'No se ha podido preparar otro intento.')));
+      })
+      .getQuiz(QUIZ.id);
+  });
+})();
+</script>
+</body>
+</html>

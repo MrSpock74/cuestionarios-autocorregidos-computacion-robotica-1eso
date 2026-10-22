@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel del profesor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#0891b2; --accent-2:#c2660a; --accent-3:#be185d; --accent-4:#4f46e5;
+    --ink:#181c34; --ink-soft:#4c5170; --muted:#6b7094;
+    --bg:#f4f5fb; --bg-panel:#ffffff; --bg-panel-2:#eceffb;
+    --line:rgba(24,28,52,.13);
+    --ok:#0a8f5b; --bad:#c22a3e; --warn:#b45309;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:'Manrope',system-ui,sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Baloo 2',system-ui,sans-serif; margin:0 0 .3em; color:var(--ink);}
+  .wrap{max-width:1180px; margin:0 auto; padding:22px 16px 70px;}
+
+  .top{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;}
+  .top .badge{width:46px; height:46px; border-radius:14px; background:linear-gradient(135deg,var(--accent),var(--accent-3)); color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px;}
+  .top h1{font-size:1.35rem; margin:0;}
+  .top p{margin:2px 0 0; color:var(--muted); font-size:.9rem;}
+  .top .sp{flex:1;}
+  .btn{font-family:inherit; font-weight:700; font-size:.88rem; padding:8px 14px; border-radius:10px; border:1.5px solid var(--line); background:var(--bg-panel); color:var(--ink); cursor:pointer; text-decoration:none; display:inline-block;}
+  .btn:hover{border-color:var(--accent); color:var(--accent);}
+  .btn.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .btn.primary:hover{color:#fff; opacity:.9;}
+  .btn[disabled]{opacity:.55; cursor:default;}
+
+  .tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
+  .tabs button{font-family:inherit; font-weight:700; font-size:.85rem; padding:8px 13px; border-radius:999px; border:1.5px solid transparent; background:var(--bg-panel-2); color:var(--ink-soft); cursor:pointer;}
+  .tabs button:hover{border-color:var(--line);}
+  .tabs button.on{background:var(--ink); color:#fff;}
+
+  .card{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:18px 18px 20px; margin-bottom:16px; box-shadow:0 2px 10px rgba(24,28,52,.05);}
+  .card h2{font-size:1.1rem;}
+  .grid{display:grid; gap:14px;}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));}
+  .kpi{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px;}
+  .kpi b{display:block; font-family:'Baloo 2',sans-serif; font-size:1.8rem; line-height:1.1;}
+  .kpi span{font-size:.8rem; color:var(--muted); font-weight:700;}
+  .two{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
+
+  .bars .row{display:flex; align-items:center; gap:10px; margin:7px 0; font-size:.88rem;}
+  .bars .lab{width:130px; flex:0 0 auto; font-weight:700; color:var(--ink-soft);}
+  .bars .bar{flex:1; height:16px; background:var(--bg-panel-2); border-radius:99px; overflow:hidden; border:1px solid var(--line);}
+  .bars .bar i{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-4)); border-radius:99px;}
+  .bars .bar i.bad{background:var(--bad);} .bars .bar i.warn{background:#e5a50a;} .bars .bar i.ok{background:var(--ok);}
+  .bars .num{width:64px; text-align:right; font-weight:800; flex:0 0 auto;}
+
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px;}
+  .toolbar input[type=search], .toolbar select{font-family:inherit; font-size:.9rem; padding:8px 11px; border-radius:10px; border:1.5px solid var(--line); background:var(--bg-panel-2); color:var(--ink);}
+  .tw{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel);}
+  table{border-collapse:collapse; width:100%; font-size:.88rem;}
+  th,td{padding:8px 10px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{background:var(--bg-panel-2); font-weight:800; color:var(--ink-soft); position:sticky; top:0; cursor:pointer; user-select:none;}
+  th.nos{cursor:default;}
+  th.q{white-space:normal; min-width:118px; max-width:170px; vertical-align:bottom;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;} tbody tr.click:hover{background:rgba(8,145,178,.06);}
+  td.c, th.c{text-align:center;}
+  .nota{display:inline-block; min-width:42px; text-align:center; font-weight:800; border-radius:8px; padding:2px 8px;}
+  .n-bad{background:rgba(194,42,62,.13); color:var(--bad);}
+  .n-warn{background:rgba(229,165,10,.2); color:var(--warn);}
+  .n-ok{background:rgba(10,143,91,.14); color:var(--ok);}
+  .n-none{color:var(--muted);}
+  .small{font-size:.78rem; color:var(--muted);}
+  tr.det td{background:#fafbff; white-space:normal;}
+  .att{display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:3px 0; font-size:.84rem;}
+  .att .f{width:130px; color:var(--muted);}
+  .hard{list-style:none; margin:0; padding:0;}
+  .hard li{display:flex; gap:10px; align-items:flex-start; padding:7px 0; border-bottom:1px solid var(--line); font-size:.86rem;}
+  .hard li:last-child{border-bottom:none;}
+  .hard .p{flex:0 0 52px; font-weight:800; color:var(--bad);}
+  .hard .t{flex:1;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{background:var(--bg-panel-2); border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:.82rem; font-weight:600;}
+  .msg{padding:12px 14px; border-radius:12px; font-size:.9rem; margin:10px 0;}
+  .msg.err{background:rgba(194,42,62,.09); border:1px solid rgba(194,42,62,.3); color:#7f1d2b;}
+  .msg.info{background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink-soft);}
+  .empty{color:var(--muted); font-style:italic; padding:6px 0;}
+  .spinner{display:inline-block; width:14px; height:14px; border:2.5px solid rgba(24,28,52,.2); border-top-color:var(--accent); border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:6px;}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (max-width:560px){ .bars .lab{width:96px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<? if (!permitido) { ?>
+  <div class="card" style="max-width:560px; margin:60px auto;">
+    <h2>🔒 Acceso restringido</h2>
+    <p>Este panel es solo para el profesorado.</p>
+    <p class="small">Tu cuenta: <?= email || '(no identificada)' ?></p>
+  </div>
+<? } else { ?>
+  <div class="top">
+    <div class="badge">📊</div>
+    <div>
+      <h1>Panel del profesor</h1>
+      <p>Computación y Robótica · 1º ESO · <span id="gen">cargando…</span></p>
+    </div>
+    <div class="sp"></div>
+    <button class="btn" id="btnFalta" type="button" title="Compara la lista de tu clase de Classroom con quien ya ha hecho cada cuestionario">👥 Quién falta</button>
+    <a class="btn" id="lnkHoja" href="#" target="_blank" rel="noopener" style="display:none">📄 Hoja de cálculo</a>
+    <button class="btn primary" id="btnRef" type="button" title="Vuelve a leer la hoja de cálculo para ver los intentos más recientes">↻ Actualizar</button>
+  </div>
+
+  <div id="msg"></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="view"><div class="card"><span class="spinner"></span> Cargando los datos…</div></div>
+<? } ?>
+</div>
+
+<? if (permitido) { ?>
+<script>
+(function(){
+  var DATA = null, ROSTER = null, TAB = 'resumen';
+  var sortKey = {}, grupoSel = '', busca = '';
+  var $ = function(id){ return document.getElementById(id); };
+
+  function el(tag, cls, txt){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt !== undefined && txt !== null) e.textContent = txt;
+    return e;
+  }
+  function fmt(n){ return (Math.round(n * 10) / 10).toString().replace('.', ','); }
+  function clsNota(n){ return n === null ? 'n-none' : (n < 5 ? 'n-bad' : (n < 7 ? 'n-warn' : 'n-ok')); }
+  function notaEl(n){
+    var s = el('span', 'nota ' + clsNota(n), n === null ? '—' : fmt(n));
+    return s;
+  }
+  function byEs(a, b){ return String(a).localeCompare(String(b), 'es'); }
+
+  // ---------- carga ----------
+  function cargar(){
+    $('btnRef').disabled = true;
+    $('msg').innerHTML = '';
+    google.script.run
+      .withSuccessHandler(function(d){
+        DATA = d; $('btnRef').disabled = false;
+        $('gen').textContent = 'actualizado el ' + d.generado;
+        var l = $('lnkHoja'); l.href = d.hoja; l.style.display = '';
+        pintaTabs(); pinta();
+      })
+      .withFailureHandler(function(err){
+        $('btnRef').disabled = false;
+        var m = el('div', 'msg err', '⚠️ ' + (err && err.message ? err.message : 'No se han podido cargar los datos.'));
+        $('msg').appendChild(m);
+        $('view').innerHTML = '';
+      })
+      .getPanelData();
+  }
+  $('btnRef').addEventListener('click', cargar);
+
+  $('btnFalta').addEventListener('click', function(){
+    var b = this; b.disabled = true; b.textContent = 'Consultando Classroom…';
+    $('msg').innerHTML = '';
+    google.script.run
+      .withSuccessHandler(function(lista){
+        ROSTER = lista; b.disabled = false; b.textContent = '👥 Quién falta (' + lista.length + ' en la clase)';
+        pinta();
+        if (TAB === 'tareas') { TAB = 'resumen'; pintaTabs(); pinta(); }
+        $('msg').appendChild(el('div', 'msg info', 'Lista de la clase cargada (' + lista.length + ' alumnos/as). Al final de cada pestaña aparece ahora el recuadro «Quién todavía no lo ha hecho».'));
+        var sitio = document.getElementById('pendientes');
+        if (sitio && sitio.scrollIntoView) sitio.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      })
+      .withFailureHandler(function(err){
+        b.disabled = false; b.textContent = '👥 Quién falta';
+        $('msg').appendChild(el('div', 'msg err', '⚠️ ' + (err && err.message ? err.message : 'No se ha podido leer la lista de la clase.') +
+          ' Si es la primera vez, ejecuta la función autorizarPanel desde el editor de Apps Script, acepta los permisos y crea una nueva versión de la implementación.'));
+      })
+      .getAlumnadoClase();
+  });
+
+  // ---------- cálculos ----------
+  function porAlumno(q){
+    var m = {};
+    q.intentos.forEach(function(it){
+      var a = m[it.e] || (m[it.e] = { e: it.e, n: '', a: '', g: '', mejor: null, mejorIt: null, ultimo: null, ultimoIt: null, intentos: [] });
+      a.n = it.n || a.n; a.a = it.a || a.a; a.g = it.g || a.g;
+      a.intentos.push(it);
+      if (it.nota !== null && (a.mejor === null || it.nota > a.mejor)) { a.mejor = it.nota; a.mejorIt = it; }
+    });
+    Object.keys(m).forEach(function(k){
+      var a = m[k];
+      a.intentos.sort(function(x, y){ return y.t - x.t; });
+      a.ultimoIt = a.intentos[0]; a.ultimo = a.ultimoIt.nota;
+    });
+    return Object.keys(m).map(function(k){ return m[k]; });
+  }
+  function ratio(txt){
+    var m = /([\d.,]+)\s*(?:de|\/)\s*([\d.,]+)/.exec(String(txt || ''));
+    if (!m) return null;
+    var c = parseFloat(m[1].replace(',', '.')), t = parseFloat(m[2].replace(',', '.'));
+    return (t > 0 && !isNaN(c)) ? c / t : null;
+  }
+  function filtra(lista){
+    return lista.filter(function(a){
+      if (grupoSel && a.g !== grupoSel) return false;
+      if (busca){
+        var t = (a.n + ' ' + a.a + ' ' + a.e).toLowerCase();
+        if (t.indexOf(busca) === -1) return false;
+      }
+      return true;
+    });
+  }
+  function todosLosGrupos(){
+    var g = {};
+    DATA.quizzes.forEach(function(q){ q.intentos.forEach(function(it){ if (it.g) g[it.g] = 1; }); });
+    return Object.keys(g).sort(byEs);
+  }
+
+  // ---------- pestañas ----------
+  function pintaTabs(){
+    var t = $('tabs'); t.innerHTML = '';
+    function add(id, txt){
+      var b = el('button', TAB === id ? 'on' : '', txt); b.type = 'button';
+      b.addEventListener('click', function(){ TAB = id; pintaTabs(); pinta(); });
+      t.appendChild(b);
+    }
+    add('resumen', '📋 Resumen');
+    DATA.quizzes.forEach(function(q){ add(q.id, q.icono + ' ' + q.titulo); });
+    add('tareas', '⚙️ Tareas de Classroom');
+  }
+
+  function barraFiltros(host, conBuscar){
+    var tb = el('div', 'toolbar');
+    var sel = el('select'); sel.setAttribute('aria-label', 'Filtrar por grupo');
+    var o0 = el('option', null, 'Todos los grupos'); o0.value = ''; sel.appendChild(o0);
+    todosLosGrupos().forEach(function(g){ var o = el('option', null, g); o.value = g; sel.appendChild(o); });
+    sel.value = grupoSel;
+    sel.addEventListener('change', function(){ grupoSel = sel.value; pinta(); });
+    tb.appendChild(sel);
+    var inp = el('input'); inp.type = 'search'; inp.placeholder = 'Buscar alumno/a…'; inp.value = busca;
+    inp.addEventListener('input', function(){ busca = inp.value.trim().toLowerCase(); pintaTablaSoloFoco(inp); });
+    tb.appendChild(inp);
+    host.appendChild(tb);
+    return inp;
+  }
+  // al escribir en el buscador se repinta sin perder el foco
+  function pintaTablaSoloFoco(inp){
+    var pos = inp.selectionStart;
+    pinta();
+    var nuevo = document.querySelector('.toolbar input[type=search]');
+    if (nuevo){ nuevo.focus(); try { nuevo.setSelectionRange(pos, pos); } catch (e) {} }
+  }
+
+  // ---------- vista: resumen ----------
+  function vistaResumen(host){
+    var card = el('div', 'card');
+    card.appendChild(el('h2', null, 'Mejor nota de cada alumno/a en cada cuestionario'));
+    card.appendChild(el('p', 'small', 'Entre paréntesis, el número de intentos. Pulsa una cabecera para ordenar.'));
+    barraFiltros(card, true);
+
+    var alumnos = {};
+    DATA.quizzes.forEach(function(q){
+      porAlumno(q).forEach(function(a){
+        var x = alumnos[a.e] || (alumnos[a.e] = { e: a.e, n: '', a: '', g: '', q: {} });
+        x.n = a.n || x.n; x.a = a.a || x.a; x.g = a.g || x.g;
+        x.q[q.id] = a;
+      });
+    });
+    var lista = filtra(Object.keys(alumnos).map(function(k){ return alumnos[k]; }));
+
+    var key = sortKey.resumen || 'ape';
+    lista.sort(function(x, y){
+      if (key.indexOf('q:') === 0){
+        var id = key.substring(2);
+        var nx = x.q[id] && x.q[id].mejor !== null ? x.q[id].mejor : -1;
+        var ny = y.q[id] && y.q[id].mejor !== null ? y.q[id].mejor : -1;
+        return ny - nx;
+      }
+      if (key === 'grupo') return byEs(x.g + x.a + x.n, y.g + y.a + y.n);
+      return byEs(x.a + x.n, y.a + y.n);
+    });
+
+    var tw = el('div', 'tw'); var t = el('table');
+    var thead = el('thead'); var hr = el('tr');
+    function th(txt, k, cls){ var h = el('th', cls || '', txt); h.addEventListener('click', function(){ sortKey.resumen = k; pinta(); }); hr.appendChild(h); }
+    th('Grupo', 'grupo'); th('Apellidos y nombre', 'ape');
+    DATA.quizzes.forEach(function(q){ th(q.icono + ' ' + q.titulo, 'q:' + q.id, 'c q'); });
+    thead.appendChild(hr); t.appendChild(thead);
+
+    var tb = el('tbody');
+    lista.forEach(function(a){
+      var tr = el('tr');
+      tr.appendChild(el('td', null, a.g));
+      tr.appendChild(el('td', null, (a.a + (a.a && a.n ? ', ' : '') + a.n) || a.e));
+      DATA.quizzes.forEach(function(q){
+        var td = el('td', 'c'); var s = a.q[q.id];
+        if (s){ td.appendChild(notaEl(s.mejor)); td.appendChild(el('span', 'small', ' (' + s.intentos.length + ')')); }
+        else { td.appendChild(el('span', 'n-none', '—')); }
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    // medias
+    var tf = el('tr');
+    tf.appendChild(el('td')); var tm = el('td', null, 'Media de la mejor nota'); tm.style.fontWeight = '800'; tf.appendChild(tm);
+    DATA.quizzes.forEach(function(q){
+      var suma = 0, n = 0;
+      lista.forEach(function(a){ var s = a.q[q.id]; if (s && s.mejor !== null){ suma += s.mejor; n++; } });
+      var td = el('td', 'c'); td.appendChild(n ? notaEl(suma / n) : el('span', 'n-none', '—')); tf.appendChild(td);
+    });
+    tb.appendChild(tf);
+    t.appendChild(tb); tw.appendChild(t); card.appendChild(tw);
+    if (!lista.length) card.appendChild(el('p', 'empty', 'Todavía no hay respuestas (o ningún resultado con ese filtro).'));
+    host.appendChild(card);
+
+    if (ROSTER){
+      var pend = el('div', 'card'); pend.id = 'pendientes'; pend.appendChild(el('h2', null, 'Quién no ha hecho ningún cuestionario'));
+      var hechos = {};
+      DATA.quizzes.forEach(function(q){ q.intentos.forEach(function(it){ hechos[it.e] = 1; }); });
+      var falta = ROSTER.filter(function(r){ return r.e && !hechos[r.e]; });
+      pend.appendChild(chips(falta, 'Todo el mundo ha hecho al menos un cuestionario. 🎉'));
+      host.appendChild(pend);
+    }
+  }
+
+  function chips(lista, vacio){
+    if (!lista.length) return el('p', 'empty', vacio);
+    var c = el('div', 'chips');
+    lista.sort(function(x, y){ return byEs(x.a + x.n, y.a + y.n); }).forEach(function(r){
+      c.appendChild(el('span', 'chip', ((r.a || '') + (r.a && r.n ? ', ' : '') + (r.n || '')) || r.e));
+    });
+    return c;
+  }
+
+  // ---------- vista: un cuestionario ----------
+  function vistaQuiz(host, q){
+    var todos = porAlumno(q);
+    var alumnos = filtra(todos);
+    var intentosFiltrados = 0; alumnos.forEach(function(a){ intentosFiltrados += a.intentos.length; });
+
+    var conNota = alumnos.filter(function(a){ return a.mejor !== null; });
+    var media = conNota.length ? conNota.reduce(function(s, a){ return s + a.mejor; }, 0) / conNota.length : null;
+    var aprob = conNota.filter(function(a){ return a.mejor >= 5; }).length;
+
+    var k = el('div', 'grid kpis');
+    function kpi(v, l){ var d = el('div', 'kpi'); d.appendChild(el('b', null, v)); d.appendChild(el('span', null, l)); k.appendChild(d); }
+    kpi(String(alumnos.length), 'alumnos/as que lo han hecho');
+    kpi(String(intentosFiltrados), 'intentos en total');
+    kpi(media === null ? '—' : fmt(media), 'media de la mejor nota');
+    kpi(conNota.length ? Math.round(aprob / conNota.length * 100) + ' %' : '—', 'con la mejor nota ≥ 5');
+    host.appendChild(k);
+    host.appendChild(el('div', null)).style.height = '14px';
+
+    var dos = el('div', 'grid two');
+
+    // distribución
+    var c1 = el('div', 'card'); c1.appendChild(el('h2', null, 'Distribución de la mejor nota'));
+    var tramos = [['Menos de 5', 0, 5, 'bad'], ['De 5 a 6,9', 5, 7, 'warn'], ['De 7 a 8,9', 7, 9, 'ok'], ['De 9 a 10', 9, 11, 'ok']];
+    var bars = el('div', 'bars');
+    tramos.forEach(function(t){
+      var n = conNota.filter(function(a){ return a.mejor >= t[1] && a.mejor < t[2]; }).length;
+      var row = el('div', 'row'); row.appendChild(el('span', 'lab', t[0]));
+      var b = el('div', 'bar'); var i = el('i', t[3]); i.style.width = (conNota.length ? Math.round(n / conNota.length * 100) : 0) + '%'; b.appendChild(i);
+      row.appendChild(b); row.appendChild(el('span', 'num', String(n))); bars.appendChild(row);
+    });
+    c1.appendChild(bars); dos.appendChild(c1);
+
+    // bloques
+    var c2 = el('div', 'card'); c2.appendChild(el('h2', null, 'Acierto medio por bloque'));
+    c2.appendChild(el('p', 'small', 'Con el mejor intento de cada alumno/a. Los bloques por debajo del 60 % piden repaso en clase.'));
+    var bars2 = el('div', 'bars'); var hayBloques = false;
+    q.blocks.forEach(function(b, bi){
+      var suma = 0, n = 0;
+      alumnos.forEach(function(a){
+        if (!a.mejorIt) return;
+        var r = ratio(a.mejorIt.b[bi]); if (r !== null){ suma += r; n++; }
+      });
+      var row = el('div', 'row'); row.appendChild(el('span', 'lab', b.label));
+      var bar = el('div', 'bar'); var i = el('i', n ? (suma / n < 0.6 ? 'bad' : (suma / n < 0.8 ? 'warn' : 'ok')) : ''); i.style.width = n ? Math.round(suma / n * 100) + '%' : '0%'; bar.appendChild(i);
+      row.appendChild(bar); row.appendChild(el('span', 'num', n ? Math.round(suma / n * 100) + ' %' : '—'));
+      bars2.appendChild(row); if (n) hayBloques = true;
+    });
+    if (hayBloques) c2.appendChild(bars2); else c2.appendChild(el('p', 'empty', 'Sin datos de bloques todavía.'));
+    dos.appendChild(c2);
+    host.appendChild(dos);
+
+    // preguntas más falladas
+    if (!q.legacy){
+      var c3 = el('div', 'card'); c3.appendChild(el('h2', null, 'Preguntas que más se fallan'));
+      c3.appendChild(el('p', 'small', 'Cuenta todos los intentos. «Fallo» es la parte de la pregunta que se pierde de media (una pregunta a medias cuenta como medio fallo). Solo se muestran las que han salido 3 veces o más.'));
+      var est = {};
+      alumnos.forEach(function(a){
+        a.intentos.forEach(function(it){
+          String(it.d || '').split(' · ').forEach(function(tok){
+            var m = /^([✓✗~])\s+(\S+?)(?:\s+\(([\d.]+)\))?$/.exec(tok.trim());
+            if (!m) return;
+            var e = est[m[2]] || (est[m[2]] = { id: m[2], n: 0, perdido: 0 });
+            e.n++;
+            if (m[1] === '✗') e.perdido += 1;
+            else if (m[1] === '~') e.perdido += 1 - parseFloat(m[3] || '0.5');
+          });
+        });
+      });
+      var lista = Object.keys(est).map(function(i){ return est[i]; }).filter(function(e){ return e.n >= 3 && e.perdido > 0; });
+      lista.sort(function(x, y){ return (y.perdido / y.n) - (x.perdido / x.n); });
+      if (!lista.length) c3.appendChild(el('p', 'empty', 'Aún no hay suficientes intentos para decir qué preguntas fallan más.'));
+      else {
+        var ul = el('ul', 'hard');
+        lista.slice(0, 10).forEach(function(e){
+          var li = el('li');
+          li.appendChild(el('span', 'p', Math.round(e.perdido / e.n * 100) + ' %'));
+          var t = el('span', 't', q.preguntas[e.id] || e.id);
+          t.appendChild(el('span', 'small', '  · salió ' + e.n + ' veces · ' + e.id));
+          li.appendChild(t); ul.appendChild(li);
+        });
+        c3.appendChild(ul);
+      }
+      host.appendChild(c3);
+    }
+
+    // tabla de alumnado
+    var c4 = el('div', 'card'); c4.appendChild(el('h2', null, 'Alumnado'));
+    c4.appendChild(el('p', 'small', 'Pulsa una fila para ver todos sus intentos.'));
+    barraFiltros(c4, true);
+    var key = sortKey[q.id] || 'ape';
+    alumnos.sort(function(x, y){
+      if (key === 'mejor') return (y.mejor === null ? -1 : y.mejor) - (x.mejor === null ? -1 : x.mejor);
+      if (key === 'fecha') return y.ultimoIt.t - x.ultimoIt.t;
+      if (key === 'int') return y.intentos.length - x.intentos.length;
+      if (key === 'grupo') return byEs(x.g + x.a + x.n, y.g + y.a + y.n);
+      return byEs(x.a + x.n, y.a + y.n);
+    });
+    var tw = el('div', 'tw'); var t = el('table'); var thead = el('thead'); var hr = el('tr');
+    function th(txt, k2, cls){ var h = el('th', cls || '', txt); h.addEventListener('click', function(){ sortKey[q.id] = k2; pinta(); }); hr.appendChild(h); }
+    th('Grupo', 'grupo'); th('Apellidos y nombre', 'ape'); th('Mejor nota', 'mejor', 'c'); th('Última', 'fecha', 'c'); th('Intentos', 'int', 'c'); th('Fecha del último', 'fecha');
+    thead.appendChild(hr); t.appendChild(thead);
+    var tb = el('tbody');
+    alumnos.forEach(function(a){
+      var tr = el('tr', 'click');
+      tr.appendChild(el('td', null, a.g));
+      tr.appendChild(el('td', null, (a.a + (a.a && a.n ? ', ' : '') + a.n) || a.e));
+      var t1 = el('td', 'c'); t1.appendChild(notaEl(a.mejor)); tr.appendChild(t1);
+      var t2 = el('td', 'c'); t2.appendChild(notaEl(a.ultimo)); tr.appendChild(t2);
+      tr.appendChild(el('td', 'c', String(a.intentos.length)));
+      tr.appendChild(el('td', null, a.ultimoIt.f));
+      var det = null;
+      tr.addEventListener('click', function(){
+        if (det){ det.parentNode.removeChild(det); det = null; return; }
+        det = el('tr', 'det'); var td = el('td'); td.colSpan = 6;
+        td.appendChild(el('div', 'small', a.e));
+        a.intentos.forEach(function(it){
+          var row = el('div', 'att');
+          row.appendChild(el('span', 'f', it.f)); row.appendChild(notaEl(it.nota));
+          it.b.forEach(function(b, i){ if (b && q.blocks[i]) row.appendChild(el('span', 'small', q.blocks[i].label + ': ' + b)); });
+          td.appendChild(row);
+        });
+        det.appendChild(td); tr.parentNode.insertBefore(det, tr.nextSibling);
+      });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); tw.appendChild(t); c4.appendChild(tw);
+    if (!alumnos.length) c4.appendChild(el('p', 'empty', 'Todavía no hay respuestas (o ningún resultado con ese filtro).'));
+    host.appendChild(c4);
+
+    if (ROSTER){
+      var hechos = {}; todos.forEach(function(a){ hechos[a.e] = 1; });
+      var falta = ROSTER.filter(function(r){ return r.e && !hechos[r.e]; });
+      var c5 = el('div', 'card'); c5.id = 'pendientes'; c5.appendChild(el('h2', null, 'Quién todavía no lo ha hecho (' + falta.length + ')'));
+      c5.appendChild(chips(falta, 'Toda la clase lo ha hecho. 🎉'));
+      host.appendChild(c5);
+    }
+  }
+
+  // ---------- vista: tareas de Classroom ----------
+  var TAREAS = null, TAREAS_ERR = '', TAREAS_BUSY = false;
+  var ESTADOS = { SIN_CREAR: ['Sin crear', 'n-none'], DRAFT: ['Borrador (el alumnado no la ve)', 'n-warn'], PUBLISHED: ['Publicada', 'n-ok'], DELETED: ['Borrada', 'n-bad'], DESCONOCIDO: ['Sin consultar', 'n-none'] };
+  function cargaTareas(){
+    TAREAS_BUSY = true; TAREAS_ERR = ''; pinta();
+    google.script.run
+      .withSuccessHandler(function(l){ TAREAS = l; TAREAS_BUSY = false; pinta(); })
+      .withFailureHandler(function(err){ TAREAS_BUSY = false; TAREAS_ERR = (err && err.message) ? err.message : 'No se ha podido consultar Classroom.'; pinta(); })
+      .getTareasClassroom();
+  }
+  function accionTarea(fn, qid, conf){
+    if (conf && !window.confirm(conf)) return;
+    TAREAS_BUSY = true; TAREAS_ERR = ''; pinta();
+    google.script.run
+      .withSuccessHandler(function(info){
+        (TAREAS || []).forEach(function(t, i){ if (t.id === info.id) TAREAS[i] = info; });
+        TAREAS_BUSY = false; pinta();
+      })
+      .withFailureHandler(function(err){ TAREAS_BUSY = false; TAREAS_ERR = (err && err.message) ? err.message : 'No se ha podido completar la acción.'; pinta(); })
+      [fn](qid);
+  }
+  function vistaTareas(host){
+    var card = el('div', 'card');
+    card.appendChild(el('h2', null, 'Tareas de Classroom de los cuestionarios'));
+    card.appendChild(el('p', 'small', 'Cada cuestionario vuelca su nota (en borrador) en su propia tarea de Classroom. Crearla la deja en BORRADOR: tienes que publicarla antes de que el alumnado haga el cuestionario. Si la tarea ya existe, no se duplica.'));
+    if (TAREAS_ERR) card.appendChild(el('div', 'msg err', '⚠️ ' + TAREAS_ERR));
+    if (TAREAS === null){
+      if (!TAREAS_BUSY && !TAREAS_ERR) { setTimeout(cargaTareas, 0); }
+      card.appendChild(el('p', null, TAREAS_BUSY ? 'Consultando Classroom…' : ''));
+      if (TAREAS_ERR){ var r0 = el('button', 'btn', '↻ Reintentar'); r0.type = 'button'; r0.addEventListener('click', cargaTareas); card.appendChild(r0); }
+      host.appendChild(card); return;
+    }
+    var bar = el('div', 'toolbar');
+    var sin = TAREAS.filter(function(t){ return t.estado === 'SIN_CREAR'; });
+    var bAll = el('button', 'btn primary', sin.length ? '➕ Crear las ' + sin.length + ' que faltan' : '✔ Todas creadas'); bAll.type = 'button';
+    bAll.disabled = TAREAS_BUSY || !sin.length;
+    bAll.addEventListener('click', function(){
+      if (!window.confirm('Se crearán ' + sin.length + ' tareas en BORRADOR en tu clase de Classroom. ¿Seguimos?')) return;
+      var cola = sin.map(function(t){ return t.id; });
+      (function sig(){
+        if (!cola.length){ TAREAS_BUSY = false; pinta(); return; }
+        var qid = cola.shift(); TAREAS_BUSY = true; pinta();
+        google.script.run
+          .withSuccessHandler(function(info){ TAREAS.forEach(function(t, i){ if (t.id === info.id) TAREAS[i] = info; }); sig(); })
+          .withFailureHandler(function(err){ TAREAS_BUSY = false; TAREAS_ERR = (err && err.message) ? err.message : 'No se ha podido crear una de las tareas.'; pinta(); })
+          .crearTareaDesdePanel(qid);
+      })();
+    });
+    bar.appendChild(bAll);
+    var bRef = el('button', 'btn', '↻ Consultar de nuevo'); bRef.type = 'button'; bRef.disabled = TAREAS_BUSY; bRef.addEventListener('click', cargaTareas);
+    bar.appendChild(bRef);
+    if (TAREAS_BUSY) bar.appendChild(el('span', 'small', 'Trabajando con Classroom…'));
+    card.appendChild(bar);
+
+    var tabla = el('table', 'tbl');
+    var th = el('tr'); ['Cuestionario', 'Estado', 'Acciones'].forEach(function(h){ th.appendChild(el('th', null, h)); });
+    tabla.appendChild(th);
+    TAREAS.forEach(function(t){
+      var tr = el('tr');
+      tr.appendChild(el('td', null, t.icono + ' ' + t.titulo));
+      var est = ESTADOS[t.estado] || [t.estado, 'n-none'];
+      var td2 = el('td'); td2.appendChild(el('span', 'nota ' + est[1], est[0]));
+      if (t.error) td2.appendChild(el('div', 'small', t.error));
+      tr.appendChild(td2);
+      var td3 = el('td'); td3.style.whiteSpace = 'normal';
+      function btn(txt, fn){ var b = el('button', 'btn', txt); b.type = 'button'; b.style.marginRight = '6px'; b.disabled = TAREAS_BUSY; b.addEventListener('click', fn); td3.appendChild(b); }
+      if (t.estado === 'SIN_CREAR') btn('Crear tarea', function(){ accionTarea('crearTareaDesdePanel', t.id); });
+      if (t.estado === 'DRAFT') btn('Publicar', function(){ accionTarea('publicarTareaDesdePanel', t.id, 'Al publicar, el alumnado verá la tarea «' + t.titulo + '» en Classroom. ¿Publicar ahora?'); });
+      if (t.url){ var a = el('a', 'btn', 'Abrir en Classroom'); a.href = t.url; a.target = '_blank'; a.rel = 'noopener'; td3.appendChild(a); }
+      var a2 = el('a', 'btn', 'Enlace del cuestionario'); a2.href = t.enlace; a2.target = '_blank'; a2.rel = 'noopener'; a2.style.marginLeft = '6px'; td3.appendChild(a2);
+      tr.appendChild(td3);
+      tabla.appendChild(tr);
+    });
+    var sc = el('div'); sc.style.overflowX = 'auto'; sc.appendChild(tabla); card.appendChild(sc);
+    host.appendChild(card);
+  }
+
+  function pinta(){
+    var host = $('view'); host.innerHTML = '';
+    if (!DATA) return;
+    if (TAB === 'tareas') { vistaTareas(host); return; }
+    if (TAB === 'resumen') { vistaResumen(host); return; }
+    var q = null; DATA.quizzes.forEach(function(x){ if (x.id === TAB) q = x; });
+    if (q) vistaQuiz(host, q);
+  }
+
+  cargar();
+})();
+</script>
+<? } ?>
+</body>
+</html>
